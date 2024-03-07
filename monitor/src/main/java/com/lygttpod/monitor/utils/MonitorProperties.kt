@@ -39,7 +39,9 @@ class MonitorProperties {
                 val port = p.getProperty(KEY_MONITOR_PORT)
                 val dbName = p.getProperty(KEY_MONITOR_DB_NAME)
                 val whiteContentTypes = p.getProperty(KEY_WHITE_CONTENT_TYPES)
+                //获取配置的host白名单
                 val whiteHosts = p.getProperty(KEY_WHITE_HOSTS)
+                //获取配置的host黑名单
                 val blackHosts = p.getProperty(KEY_BLACK_HOSTS)
                 val isFilterIPAddressHost =
                     p.getProperty(KEY_IS_FILTER_IPADDRESS_HOST)?.toBoolean() ?: false

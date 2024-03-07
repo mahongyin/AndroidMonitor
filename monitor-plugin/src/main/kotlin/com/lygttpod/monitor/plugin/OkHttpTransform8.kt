@@ -17,13 +17,17 @@ abstract class OkHttpTransform8 : AsmClassVisitorFactory</*InstrumentationParame
     // 这里支持通过类名，包名，注解，接口，父类等属性来组合判断
     override fun isInstrumentable(classData: ClassData): Boolean {
         //指定包名执行
-        //return classData.className.startsWith("com.jishu.app")
+        //return classData.className.startsWith("com.xxx.app")
 
         //通过parameters.get()来获取传递的配置参数 包名
         val packageConfig = parameters.get().packageNames.get()
         if (packageConfig.isNotEmpty()) {
+            //包含包名就执行
             return packageConfig.any { classData.className.contains(it) }
+        } else {//不执行，看自己需求了 release 完全可以设置不执行
+           // return false
         }
+        //默认执行
         return true
     }
 }

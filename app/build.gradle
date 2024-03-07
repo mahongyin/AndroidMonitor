@@ -4,7 +4,9 @@ plugins {
     //2、应用抓包插件
     id 'monitor-plugin'
 }
-
+MonitorPlugin {
+   includePackages = ['com.android.monitor.demo']
+}
 android {
     compileSdk 31
 

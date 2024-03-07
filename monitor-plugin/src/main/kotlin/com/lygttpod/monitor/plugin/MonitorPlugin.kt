@@ -6,10 +6,10 @@ import com.android.build.api.variant.AndroidComponentsExtension
 //import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.util.*
+import java.util.Properties
 
 /** 配置包名
- * TestPlugin {
+ * MonitorPlugin {
  *     includePackages = ['com.xx.xxx']
  * }
  */
@@ -81,14 +81,12 @@ class MonitorPlugin : Plugin<Project> {
 
         //这里appExtension获取方式与原transform api不同，可自行对比
         val appExtension = project.extensions.getByType(AndroidComponentsExtension::class.java)
-        //读取配置文件
-        project.extensions.create("MonitorPlugin", ConfigOkHttp::class.java)
+        //读取配置文件 对应MonitorPlugin { includePackages = ['com.xx.xxx']}
+        project.extensions.create("MonitorPlugin", ConfigExtension::class.java)
         //这里通过transformClassesWith替换了原registerTransform来注册字节码转换操作
         appExtension.onVariants { variant ->
             //新api方式，配置获取
-            val extensionNew = project.extensions.getByType(
-                ConfigExtension::class.java
-            )
+            val extensionNew = project.extensions.getByType(ConfigExtension::class.java)
             //可以通过variant来获取当前编译环境的一些信息，最重要的是可以 variant.name 来区分是debug模式还是release模式编译
             variant.instrumentation.transformClassesWith(OkHttpTransform8::class.java, InstrumentationScope.ALL) {
                 //配置通过指定配置的类，携带到TimeCostTransform中
@@ -96,6 +94,8 @@ class MonitorPlugin : Plugin<Project> {
                 //it.packageNames.set(extensionNew.includePackages)
             }
             variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
+                //如果MethodTimeTransform none没配置,就不需要这里赋值了
+                it.packageNames.set(extensionNew.includePackages.toList())
             }
             //InstrumentationScope.ALL 配合 FramesComputationMode.COPY_FRAMES可以指定该字节码转换器在全局生效，包括第三方lib
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)

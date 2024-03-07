@@ -63,6 +63,9 @@ object MonitorHelper {
         singleThreadExecutor?.execute(action)
     }
 
+    /**
+     * 配置参数 他是采用了 主项目assets目录下新建 monitor.properties 文件的方式
+     */
     fun init(context: Context) {
         MonitorHelper.context = context
         thread {

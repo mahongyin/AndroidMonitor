@@ -35,7 +35,7 @@ class MethodTimeAdapter( methodVisitor: MethodVisitor, access:Int, name:String?,
         // 在onMethodExit中插入代码 Log.i("tag", "Method: $name, timecost: " + (System.currentTimeMillis() - startTime))
         mv.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn("Method: $name, timecost: ");
+        mv.visitLdcInsn("Method: $name, timeCost: ");
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
             "java/lang/StringBuilder",
             "<init>",
@@ -58,7 +58,7 @@ class MethodTimeAdapter( methodVisitor: MethodVisitor, access:Int, name:String?,
             "toString",
             "()Ljava/lang/String;",
             false);
-        mv.visitLdcInsn("plugin")
+        mv.visitLdcInsn("monitor")//log的tag
         mv.visitInsn(Opcodes.SWAP)
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
             "android/util/Log",
