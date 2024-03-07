@@ -25,7 +25,7 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
     //常用io操作
-    implementation "commons-io:commons-io:2.13.0"
+//    implementation "commons-io:commons-io:2.13.0"
 
     // Android DSL  Android编译的大部分gradle源码 7.4.2=Java11
     implementation 'com.android.tools.build:gradle:8.3.0' //考虑兼容Java11  AGP8 要Java17
@@ -54,7 +54,7 @@ publishing {
     repositories { RepositoryHandler handler ->
         handler.maven { MavenArtifactRepository mavenArtifactRepository -> //正式仓库
             //上传到项目本地仓库
-            url '..\\localmaven' //MAVEN_URL
+            url '..\\localmaven' //MAVEN_URL //
             allowInsecureProtocol = true
             if (url.toString().startsWith("http")) {
                 credentials {
