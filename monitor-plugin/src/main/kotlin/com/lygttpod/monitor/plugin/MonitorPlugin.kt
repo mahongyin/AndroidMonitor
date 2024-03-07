@@ -61,6 +61,7 @@ class MonitorPlugin : Plugin<Project> {
             //可以通过variant来获取当前编译环境的一些信息，最重要的是可以 variant.name 来区分是debug模式还是release模式编译
             variant.instrumentation.transformClassesWith(OkHttpTransform8::class.java, InstrumentationScope.ALL) {
             }
+            //方法耗时
             variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
             }
             //InstrumentationScope.ALL 配合 FramesComputationMode.COPY_FRAMES可以指定该字节码转换器在全局生效，包括第三方lib
@@ -93,10 +94,11 @@ class MonitorPlugin : Plugin<Project> {
                 it.packageNames.set(extensionNew.includePackages.toList())
                 //it.packageNames.set(extensionNew.includePackages)
             }
-            variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
-                //如果MethodTimeTransform none没配置,就不需要这里赋值了
-                it.packageNames.set(extensionNew.includePackages.toList())
-            }
+            //方法耗时
+//            variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
+//                //如果MethodTimeTransform none没配置,就不需要这里赋值了
+//                it.packageNames.set(extensionNew.includePackages.toList())
+//            }
             //InstrumentationScope.ALL 配合 FramesComputationMode.COPY_FRAMES可以指定该字节码转换器在全局生效，包括第三方lib
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
