@@ -3,8 +3,8 @@
 ### [**Demo下载体验**](https://www.pgyer.com/AndroidMonitor)
 
 ### [**文章介绍---->Android抓包从未如此简单**](https://juejin.cn/post/7119083753376317448)
-
-
+APG8
+https://www.jianshu.com/p/b6f6d63061e4
 
 ## 切记：monitor需要配合monitor-plugin使用
 

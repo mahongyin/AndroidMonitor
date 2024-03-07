@@ -30,6 +30,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.lygttpod.monitor'
 }
 
 dependencies {
