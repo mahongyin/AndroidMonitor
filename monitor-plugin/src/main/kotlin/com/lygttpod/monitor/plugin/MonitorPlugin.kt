@@ -62,8 +62,8 @@ class MonitorPlugin : Plugin<Project> {
             variant.instrumentation.transformClassesWith(OkHttpTransform8::class.java, InstrumentationScope.ALL) {
             }
             //方法耗时
-            variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
-            }
+//            variant.instrumentation.transformClassesWith(MethodTimeTransform::class.java, InstrumentationScope.ALL) {
+//            }
             //InstrumentationScope.ALL 配合 FramesComputationMode.COPY_FRAMES可以指定该字节码转换器在全局生效，包括第三方lib
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }

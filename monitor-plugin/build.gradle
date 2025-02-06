@@ -67,7 +67,7 @@ publishing {
 
     publications { PublicationContainer publication ->
         maven(MavenPublication) {
-            version '0.0.3'
+            version '0.1.0'
             artifactId 'monitor-plugin'
             groupId 'com.mhy.plugin'
             from components.java

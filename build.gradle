@@ -14,7 +14,7 @@ buildscript {
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.18.0'
         //1、依赖抓包插件库
 //        classpath 'io.github.lygttpod:monitor-plugin:0.0.2'
-        classpath 'com.mhy.plugin:monitor-plugin:0.0.3'
+        classpath 'com.mhy.plugin:monitor-plugin:0.1.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
