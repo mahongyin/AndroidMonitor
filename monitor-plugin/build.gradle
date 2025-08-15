@@ -1,9 +1,4 @@
-plugins {
-    //id 'java'
-    id 'groovy'
-    id 'kotlin'
-    id 'maven-publish'
-}
+
 //apply plugin: 'groovy'
 //apply plugin: 'kotlin'
 
@@ -21,11 +16,34 @@ plugins {
 //    implementation 'com.android.tools.build:gradle:4.1.3'
 //    implementation 'cn.quinnchen.hunter:hunter-transform:1.2.3'
 //}
+
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_1_8
+//    targetCompatibility = JavaVersion.VERSION_1_8
+//}
+//sourceSets { SourceSetContainer sourceSets ->
+//    sourceSets.main.java.srcDirs('src/main/java', 'src/main/groovy', 'src/main/kotlin')
+//}
+
+plugins {
+    //id 'java'
+    id 'groovy'
+    id 'kotlin'
+    id 'maven-publish'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+kotlin {//kotlin 在 1.5.30 开始支持了这个
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    //常用io操作
-//    implementation "commons-io:commons-io:2.13.0"
+
 
     // Android DSL  Android编译的大部分gradle源码 7.4.2=Java11
     implementation 'com.android.tools.build:gradle:8.3.0' //考虑兼容Java11  AGP8 要Java17
@@ -34,21 +52,20 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.6'
     implementation 'org.ow2.asm:asm-util:9.6'
     implementation 'org.ow2.asm:asm-commons:9.6'
+
+    //常用io操作
+//    implementation "commons-io:commons-io:2.13.0"
+
     // 使用hunter框架
 //    implementation('cn.quinnchen.hunter:hunter-transform:1.2.3') {
 //        // 排除hunter带来的gradle传递依赖，以便自定义应用的gradle版本
 //        exclude group: 'com.android.tools.build'
 //    }
 }
+
 //maven仓库
 //apply from: '../upload.gradle'
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_1_8
-//    targetCompatibility = JavaVersion.VERSION_1_8
-//}
-//sourceSets { SourceSetContainer sourceSets ->
-//    sourceSets.main.java.srcDirs('src/main/java', 'src/main/groovy', 'src/main/kotlin')
-//}
+
 //发布插件
 publishing {
     repositories { RepositoryHandler handler ->
@@ -67,7 +84,7 @@ publishing {
 
     publications { PublicationContainer publication ->
         maven(MavenPublication) {
-            version '0.1.0'
+            version '0.1.1'
             artifactId 'monitor-plugin'
             groupId 'com.mhy.plugin'
             from components.java

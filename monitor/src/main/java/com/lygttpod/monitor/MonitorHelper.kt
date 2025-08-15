@@ -72,7 +72,8 @@ object MonitorHelper {
             val propertiesData = MonitorProperties().paramsProperties()
             val dbName: String = propertiesData?.dbName ?: "monitor_room_db"
             val contentTypes = propertiesData?.whiteContentTypes
-            whiteContentTypes = if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
+            whiteContentTypes =
+                if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
             whiteHosts = propertiesData?.whiteHosts
             blackHosts = propertiesData?.blackHosts
             port = propertiesData?.port?.toInt() ?: 0
@@ -85,10 +86,9 @@ object MonitorHelper {
     private fun initPCService(context: Context, port: Int = 0) {
         ALSHelper.init(context)
         ALSHelper.startService(
-            if (port > 0) ServiceConfig(
-                MonitorService::class.java,
-                port
-            ) else ServiceConfig(MonitorService::class.java)
+            if (port > 0)
+                ServiceConfig(MonitorService::class.java, port)
+            else ServiceConfig(MonitorService::class.java)
         )
         MonitorHelper.port = ALSHelper.serviceList.firstOrNull()?.port ?: 0
     }
@@ -161,7 +161,8 @@ object MonitorHelper {
                 Log.d(TAG, "getSharedPrefsFiles: " + spFile.name)
                 val fileName = spFile.name
                 if (!fileName.isNullOrBlank()) {
-                    val name = if (fileName.endsWith(".xml")) fileName.split(".xml")[0] else fileName
+                    val name =
+                        if (fileName.endsWith(".xml")) fileName.split(".xml")[0] else fileName
                     val value = getSpFile(name)
                     map[name] = value
                 }

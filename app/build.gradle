@@ -4,9 +4,7 @@ plugins {
     //2、应用抓包插件
     id 'monitor-plugin'
 }
-MonitorPlugin {
-   includePackages = ['com.android.monitor.demo']
-}
+
 android {
     compileSdk 31
 
@@ -41,10 +39,11 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+    //implementation 'com.squareup.okio:okio:2.4.1'
 
     //3、依赖抓包库 只在debug环境下依赖  所有使用 debugImplementation
 //    debugImplementation 'io.github.lygttpod:monitor:0.0.8'

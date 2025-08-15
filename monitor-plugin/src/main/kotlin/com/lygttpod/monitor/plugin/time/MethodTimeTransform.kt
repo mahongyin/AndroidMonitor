@@ -1,8 +1,9 @@
-package com.lygttpod.monitor.plugin
+package com.lygttpod.monitor.plugin.time
 
 import com.android.build.api.instrumentation.AsmClassVisitorFactory
 import com.android.build.api.instrumentation.ClassContext
 import com.android.build.api.instrumentation.ClassData
+import com.android.build.api.instrumentation.InstrumentationParameters
 import org.objectweb.asm.ClassVisitor
 
 /**
@@ -10,9 +11,8 @@ import org.objectweb.asm.ClassVisitor
  * Date    2024/3/7 11:00
  *
  */
-abstract class MethodTimeTransform : AsmClassVisitorFactory</*InstrumentationParameters.None*/ConfigOkHttp> {
-    override fun createClassVisitor(classContext: ClassContext,
-        nextClassVisitor: ClassVisitor): ClassVisitor {
+abstract class MethodTimeTransform : AsmClassVisitorFactory<InstrumentationParameters.None> {
+    override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor {
         //指定真正的ASM转换器
         return MethodTimeClassVisitor(nextClassVisitor)
     }
@@ -21,14 +21,8 @@ abstract class MethodTimeTransform : AsmClassVisitorFactory</*InstrumentationPar
     // 这里支持通过类名，包名，注解，接口，父类等属性来组合判断
     override fun isInstrumentable(classData: ClassData): Boolean {
         //指定包名执行
-        //return classData.className.startsWith("com.xxx.app")
-        //通过parameters.get()来获取传递的配置参数 包名
-        val packageConfig = parameters.get().packageNames.get()
-        if (packageConfig.isNotEmpty()) {
-            //包含包名就执行
-            return packageConfig.any { classData.className.contains(it) }
-        }
+        return classData.className.startsWith("com.android.monitor.demo")
         //默认执行
-        return true
+//        return true
     }
 }

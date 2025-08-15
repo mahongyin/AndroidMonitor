@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    compileSdk 28
+    compileSdk 31
 
     defaultConfig {
         minSdk 21
-        targetSdk 28
+        targetSdk 31
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -30,6 +30,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    //gradle 8 现在是强制
     namespace 'com.lygttpod.monitor'
 }
 

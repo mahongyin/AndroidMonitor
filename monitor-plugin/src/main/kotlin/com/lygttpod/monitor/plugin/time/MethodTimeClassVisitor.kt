@@ -1,4 +1,4 @@
-package com.lygttpod.monitor.plugin
+package com.lygttpod.monitor.plugin.time
 
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
