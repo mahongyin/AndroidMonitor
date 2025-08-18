@@ -1,5 +1,6 @@
 package com.lygttpod.monitor.utils
 
+import android.util.Log
 import com.lygttpod.monitor.MonitorHelper
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -8,17 +9,17 @@ import java.util.regex.Pattern
 fun String?.isWhiteContentType(): Boolean {
     val whiteContentTypes = MonitorHelper.whiteContentTypes
     val intercept =
-        whiteContentTypes.isNullOrBlank() || !this.isNullOrEmpty() && whiteContentTypes.contains(
-            this.split(";")[0]
-        )
-    println("${MonitorHelper.TAG}---->whiteContentTypes = $whiteContentTypes 当前ContentType = $this   是否在白名单:$intercept")
+        whiteContentTypes.isNullOrBlank() || (!this.isNullOrEmpty() && whiteContentTypes.split(",").any { this.contains(it, true) })
+        //whiteContentTypes.isNullOrBlank() || !this.isNullOrEmpty() && whiteContentTypes.contains(this.split(";")[0])
+    Log.i(MonitorHelper.TAG, "---->whiteContentTypes = $whiteContentTypes")
+    Log.i(MonitorHelper.TAG, "---->当前ContentType = $this   是否在白名单:$intercept")
     return intercept
 }
 
 fun String?.isWhiteHosts(): Boolean {
     val whiteHosts = MonitorHelper.whiteHosts
     val intercept = this.isNullOrBlank() || whiteHosts.isNullOrBlank() || whiteHosts.contains(this)
-    println("${MonitorHelper.TAG}---->whiteHosts = $whiteHosts  当前host= $this   是否在白名单:$intercept")
+    Log.i(MonitorHelper.TAG, "---->whiteHosts = $whiteHosts  当前host= $this   是否在白名单:$intercept")
     return intercept
 }
 
@@ -26,7 +27,7 @@ fun String?.isBlackHosts(): Boolean {
     val blackHosts = MonitorHelper.blackHosts
     if (this.isNullOrBlank()) return false
     val intercept = !blackHosts.isNullOrBlank() && blackHosts.contains(this)
-    println("${MonitorHelper.TAG}---->blackHosts = $blackHosts  当前host= $this   是否在黑名单:$intercept")
+    Log.i(MonitorHelper.TAG, "---->blackHosts = $blackHosts  当前host= $this   是否在黑名单:$intercept")
     return intercept
 }
 

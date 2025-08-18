@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     //2、应用抓包插件
     id 'monitor-plugin'
+//    id 'method-time-plugin'
 }
 
 android {
@@ -48,4 +49,5 @@ dependencies {
     //3、依赖抓包库 只在debug环境下依赖  所有使用 debugImplementation
 //    debugImplementation 'io.github.lygttpod:monitor:0.0.8'
     debugImplementation project(":monitor")
+    androidTestCompileOnly project(":androids-source")
 }

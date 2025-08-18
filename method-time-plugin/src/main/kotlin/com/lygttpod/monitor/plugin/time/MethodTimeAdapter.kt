@@ -28,12 +28,13 @@ class MethodTimeAdapter( methodVisitor: MethodVisitor, access:Int, name:String?,
             "()J",
             false)
         startTimeLocal = newLocal(Type.LONG_TYPE) // 创建一个新的局部变量来保存 startTime
-        mv.visitVarInsn(LSTORE, startTimeLocal)
+        mv.visitVarInsn(LSTORE, startTimeLocal) //存给变量
     }
 
     @Override
     override fun onMethodExit(opcode: Int) {
-        // 在onMethodExit中插入代码 Log.i("tag", "Method: $name, timecost: " + (System.currentTimeMillis() - startTime))
+        val logTag = "MethodTime"
+        // 在onMethodExit中插入代码 Log.i("$logTag", "Method: $name, timeCost: " + (System.currentTimeMillis() - startTime))
         mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("Method: $name, timeCost: ");
@@ -49,7 +50,7 @@ class MethodTimeAdapter( methodVisitor: MethodVisitor, access:Int, name:String?,
             "currentTimeMillis",
             "()J",
             false);
-        mv.visitVarInsn(LLOAD, startTimeLocal);
+        mv.visitVarInsn(LLOAD, startTimeLocal); //从变量取出
         mv.visitInsn(LSUB);
         mv.visitMethodInsn(
             INVOKEVIRTUAL,
@@ -63,7 +64,7 @@ class MethodTimeAdapter( methodVisitor: MethodVisitor, access:Int, name:String?,
             "toString",
             "()Ljava/lang/String;",
             false);
-        mv.visitLdcInsn("monitor")//log的tag
+        mv.visitLdcInsn(logTag)//log的tag
         mv.visitInsn(SWAP)
         mv.visitMethodInsn(
             INVOKESTATIC,

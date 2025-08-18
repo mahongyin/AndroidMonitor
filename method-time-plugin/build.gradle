@@ -85,7 +85,7 @@ publishing {
     publications { PublicationContainer publication ->
         maven(MavenPublication) {
             version '0.1.1'
-            artifactId 'monitor-plugin'
+            artifactId 'method-time-plugin'
             groupId 'com.mhy.plugin'
             from components.java
         }

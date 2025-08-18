@@ -7,6 +7,7 @@ import android.net.Uri
 import android.util.Log
 import com.lygttpod.monitor.MonitorHelper
 
+// 提供自动初始化
 class MonitorProvider : ContentProvider() {
     override fun onCreate(): Boolean {
         val context = context
@@ -14,6 +15,8 @@ class MonitorProvider : ContentProvider() {
             Log.e("MonitorProvider", "MonitorProvider初始化context失败")
         } else {
             MonitorHelper.init(context)
+            MonitorHelper.httpStreamHandler()
+            MonitorHelper.handleSSLHandShake()
         }
         return true
     }

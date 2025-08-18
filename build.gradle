@@ -15,6 +15,7 @@ buildscript {
         //1、依赖抓包插件库
 //        classpath 'io.github.lygttpod:monitor-plugin:0.0.2'
         classpath 'com.mhy.plugin:monitor-plugin:0.1.1'
+        classpath 'com.mhy.plugin:method-time-plugin:0.1.1'
 
     }
 }

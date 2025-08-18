@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!--阿里 DNS 依托阿里云全球节点，平均延迟低至 9ms（国内最快），支持 DoH/DoT 加密，抗 DNS 污染能力强，适合游戏、直播等高实时场景-->
+        <domain includeSubdomains="false">223.5.5.5</domain>
+        <domain includeSubdomains="false">223.6.6.6</domain>
+        <!--Google 全球覆盖最广，响应快，支持 DNSSEC 防劫持；但国内可能因政策延迟高（丢包率约 15%）-->
+        <domain includeSubdomains="false">8.8.8.8</domain>
+        <domain includeSubdomains="false">8.8.4.4</domain>
+        <!--Cloudflare	零日志政策，避免数据追踪 平均延迟 10ms（国际节点），支持 DoH/DoT；但恶意网站拦截较弱-->
+        <domain includeSubdomains="false">1.1.1.1</domain>
+        <domain includeSubdomains="false">1.0.0.1</domain>
+        <!--114 DNS 三网（电信/联通/移动）优化，延迟约 10–28ms，老牌稳定，提供分级过滤功能-->
+        <domain includeSubdomains="false">114.114.114.114</domain>
+        <domain includeSubdomains="false">114.114.115.115</domain>
+        <!--安全版（拦截恶意网站）-->
+        <domain includeSubdomains="false">114.114.114.119</domain>
+        <!--家庭版（过滤色情内容）-->
+        <domain includeSubdomains="false">114.114.114.110</domain>
+        <!--Quad9 实时威胁拦截，整合多家威胁情报，适合安全优先场景；速度较慢（延迟约 60ms）-->
+        <domain includeSubdomains="false">9.9.9.9</domain>
+        <!--OpenDNS 顶级钓鱼防护 + 家长控制功能，可自定义过滤规则；延迟中等（约 50ms）-->
+        <domain includeSubdomains="false">208.67.222.222</domain>
+        <domain includeSubdomains="false">208.67.220.220</domain>
+        <!--CleanBrowsing 强制过滤成人内容，保护儿童上网-->
+        <domain includeSubdomains="false">185.228.168.9</domain>
+        <!--OneDNS 拦截版-->
+        <domain includeSubdomains="false">117.50.11.11</domain>
+        <domain includeSubdomains="false">52.80.66.66</domain>
+        <!--OneDNS 纯净版-->
+        <domain includeSubdomains="false">117.50.10.10</domain>
+        <domain includeSubdomains="false">52.80.52.52</domain>
+        <!--OneDNS 家庭版-->
+        <domain includeSubdomains="false">117.50.60.30</domain>
+        <domain includeSubdomains="false">52.80.60.30</domain>
+        <!--CNNIC-->
+        <domain includeSubdomains="false">1.2.4.8</domain>
+        <domain includeSubdomains="false">210.2.4.8</domain>
+        <!--DNSPod 与腾讯 CDN 深度协同，平均延迟 12ms，适合腾讯系应用（微信、QQ）加速，但跨区域稳定性波动较大-->
+        <domain includeSubdomains="false">119.29.29.29</domain>
+        <domain includeSubdomains="false">119.28.28.28</domain>
+        <domain includeSubdomains="false">182.254.116.116</domain>
+        <!--华为DNS-->
+        <domain includeSubdomains="false">122.112.208.1</domain>
+        <domain includeSubdomains="false">122.112.208.175</domain>
+        <domain includeSubdomains="false">114.115.192.11</domain>
+        <domain includeSubdomains="false">116.205.5.1</domain>
+        <domain includeSubdomains="false">116.205.5.30</domain>
+        <domain includeSubdomains="false">139.9.23.90</domain>
+        <domain includeSubdomains="false">139.159.208.206</domain>
+        <!--百度DNS 避免恶意跳转和强制广告 国内使用-->
+        <domain includeSubdomains="false">180.76.76.76</domain>
+        <!--360-->
+        <domain includeSubdomains="false">101.226.4.6</domain>
+        <domain includeSubdomains="false">218.30.118.6</domain>
+    </domain-config>
+</network-security-config>

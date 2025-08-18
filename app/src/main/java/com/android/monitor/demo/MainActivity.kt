@@ -1,21 +1,35 @@
 package com.android.monitor.demo
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.http.SslError
+import android.os.Build
 import android.os.Bundle
+import android.os.Message
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.webkit.SslErrorHandler
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import com.android.monitor.demo.databinding.ActivityMainBinding
 import com.lygttpod.monitor.MonitorHelper
 import com.lygttpod.monitor.utils.getPhoneWifiIpAddress
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okio.IOException
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.URL
-import kotlin.concurrent.thread
+import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,110 +42,177 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         getServiceAddress()
+        spFileCommit()
 
-        // 手动加入拦截器
+        // 手动注入okhttp拦截器
 //        val builder = client.newBuilder()
 //        builder.interceptors().addAll(MonitorHelper.hookInterceptors)
 //        client = builder.build()
 
         initData()
-        binding.btnSendRequest.setOnClickListener {
-            sendRequest("https://www.wanandroid.com/article/list/0/json")
-        }
     }
-
+    override fun onBackPressed() {
+        if (binding.webview.canGoBack()){
+            binding.webview.goBack()
+            return
+        }
+        super.onBackPressed()
+    }
     private fun initData() {
-        sendRequest("https://www.wanandroid.com/banner/json")
-        spFileCommit()
-        thread(true){
-            getRequest("https://www.wanandroid.com/article/list/0/json")
-        }
-    }
-    private fun getRequest(requestUrl: String) {
-        var isSuccess = false
-        var message: String
-
-        var inputStream: InputStream? = null
-        var baos: ByteArrayOutputStream? = null
-        try {
-            val url = URL(requestUrl)
-            val connection = url.openConnection() as HttpURLConnection
-            // 设定请求的方法为"POST"，默认是GET
-            connection.setRequestMethod("GET")
-            connection.setConnectTimeout(50000)
-            connection.setReadTimeout(50000)
-            // User-Agent  IE9的标识
-            connection.setRequestProperty(
-                "User-Agent",
-                "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0;"
-            )
-            connection.setRequestProperty("Accept-Language", "zh-CN")
-            connection.setRequestProperty("Connection", "Keep-Alive")
-            connection.setRequestProperty("Charset", "UTF-8")
-            //当我们要获取我们请求的http地址访问的数据时就是使用connection.getInputStream().read()方式时我们就需要setDoInput(true)，
-            //根据api文档我们可知doInput默认就是为true。我们可以不用手动设置了，如果不需要读取输入流的话那就setDoInput(false)。
-            //当我们要采用非get请求给一个http网络地址传参 就是使用connection.getOutputStream().write() 方法时我们就需要setDoOutput(true), 默认是false
-            // 设置是否从httpUrlConnection读入，默认情况下是true;
-            connection.setDoInput(true)
-            // 设置是否向httpUrlConnection输出，如果是post请求，参数要放在http正文内，因此需要设为true, 默认是false;
-            //connection.setDoOutput(true);//Android  4.0 GET时候 用这句会变成POST  报错java.io.FileNotFoundException
-            connection.setUseCaches(false)
-            connection.connect() //
-            val contentLength = connection.getContentLength()
-            if (connection.getResponseCode() == 200) {
-                inputStream = connection.getInputStream() //会隐式调用connect()
-                baos = ByteArrayOutputStream()
-                var readLen: Int
-                val bytes = ByteArray(1024)
-                while ((inputStream.read(bytes).also { readLen = it }) != -1) {
-                    baos.write(bytes, 0, readLen)
+        binding.tvResult.setMovementMethod(ScrollingMovementMethod.getInstance());
+        val callback = object : Test.HttpCallback {
+            override fun onSuccess(result: String?) {
+                runOnUiThread {
+                    binding.tvResult.scrollY = 0
+                    binding.tvResult.text = result
                 }
-                val result = baos.toString()
-                Log.i("请求", " result:" + result)
-
-                message = result
-                isSuccess = true
-            } else {
-                message = "请求失败 code:" + connection.getResponseCode()
             }
-        } catch (e: MalformedURLException) {
-            message = "${e.message}"
-            e.printStackTrace()
-        } catch (e: java.io.IOException) {
-            message = "${e.message}"
-            e.printStackTrace()
-        } finally {
-            try {
-                if (baos != null) {
-                    baos.close()
+
+            override fun onFailure(errorMsg: String?) {
+                runOnUiThread {
+                    binding.tvResult.scrollY = 0
+                    binding.tvResult.text = errorMsg ?: "请求失败"
                 }
-                if (inputStream != null) {
-                    inputStream.close()
-                }
-            } catch (e: java.io.IOException) {
-                message = "${e.message}"
-                e.printStackTrace()
+            }
+
+        }
+        binding.btnSendGet.setOnClickListener {
+            Executors.newCachedThreadPool().execute {
+                Test.getRequest("https://www.wanandroid.com/article/list/0/json", null, callback)
             }
         }
-        if (isSuccess) {
-            Log.i("请求s",message)
-        } else {
-            Log.e("请求e",message)
+        binding.btnSendPost.setOnClickListener {
+            Executors.newCachedThreadPool().execute {
+                val map = hashMapOf("name" to "name", "token" to "123456789")
+                Test.postRequest(
+                    "https://www.wanandroid.com/lg/uncollect_originId/2333/json", map, callback)
+            }
         }
+        binding.btnSendOkhttp.setOnClickListener {
+            sendRequest("https://www.wanandroid.com/banner/json")
+        }
+        webview()
+        binding.webview.clearHistory()
+        binding.webview.clearCache(true)
+        binding.webview.clearFormData()
+        binding.webview.clearMatches()
+        binding.webview.settings.apply {
+            javaScriptEnabled = true
+            allowFileAccess = true
+            allowContentAccess = true
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            useWideViewPort = true
+            javaScriptCanOpenWindowsAutomatically = true
+            loadWithOverviewMode = true
+            displayZoomControls = false
+            setSupportMultipleWindows(true)
+            loadsImagesAutomatically = true
+            blockNetworkImage = false
+            setGeolocationEnabled(true)
+            databaseEnabled = true
+            setSupportZoom(false)
+            domStorageEnabled = true
+            cacheMode = WebSettings.LOAD_NO_CACHE
+        }
+        binding.webview.webChromeClient = object : WebChromeClient() {
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: Message?
+            ): Boolean {
+                // 1. 创建临时WebView用于捕获URL
+                val result = view?.hitTestResult
+                val url = result?.extra?:"" // 获取点击链接的URL
+                Log.d("shouldLoading", "_blank: $url")
+                if (url.startsWith("http", true)) {
+                    view?.loadUrl(url)
+                } else {
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                    if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this@MainActivity, "不支持", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                return true
+            }
+        }
+        binding.webview.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
+                } else {
+                    view?.loadUrl(MonitorHelper.injectVConsole())
+                }
+            }
+            @SuppressLint("WebViewClientOnReceivedSslError")
+            override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
+                handler?.proceed()//忽略证书错误
+            }
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                Log.d("shouldLoading", "request: $url")
+                if(url?.startsWith("http", true) == true){
+                    view?.loadUrl(url)
+                } else {
+                    val intent = Intent(Intent.ACTION_VIEW, url?.toUri())
+                    if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this@MainActivity, "不支持", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                return true
+            }
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                return this.shouldOverrideUrlLoading(view, request?.url?.toString())
+            }
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                // 可以拦截请求，返回自定义的response，但不推荐
+                val response = MonitorHelper.shouldInterceptRequest(view, request)
+                if (response != null){
+                    return response
+                }
+                return super.shouldInterceptRequest(view, request)
+            }
+
+//            override fun shouldInterceptRequest(
+//                view: WebView?,
+//                url: String?
+//            ): WebResourceResponse? {
+//                val response = MonitorHelper.shouldInterceptRequest(view, url)
+//                if (response != null){
+//                    return response
+//                }
+//                return super.shouldInterceptRequest(view, url)
+//            }
+        }
+        binding.webview.loadUrl("https://juejin.cn/")
     }
+
+    private fun webview() {
+
+    }
+
     private fun sendRequest(url: String) {
         val request = Request.Builder().url(url).build();
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
+                    binding.tvResult.scrollY = 0
+                    binding.tvResult.text = e.message ?: "请求失败"
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val result = response.body?.string()
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, result, Toast.LENGTH_SHORT).show()
+                    binding.tvResult.scrollY = 0
+                    binding.tvResult.text = result
                 }
             }
         })

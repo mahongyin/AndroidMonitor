@@ -2,3 +2,6 @@ rootProject.name = "AndroidMonitor"
 include ':app'
 include ':monitor'
 include ':monitor-plugin'
+include ':method-time-plugin'
+include ':androids-source'
+project(':androids-source').projectDir = new File('D:\\android-sdk-windows\\sources\\android-33')

@@ -40,17 +40,18 @@ abstract class OkHttpClassVisitorFactory : AsmClassVisitorFactory<Instrumentatio
                                     "()Ljava/util/List;",
                                     false
                                 )
-                                mv.visitVarInsn(Opcodes.ASTORE, 10) // 保存到局部变量10
                                 /*mv.visitLdcInsn("com/lygttpod/monitor/MonitorHelper\$INSTANCE")
-                                mv.visitMethodInsn(
-                                    Opcodes.INVOKESTATIC,
-                                    "com/lygttpod/monitor/MonitorHelper\$INSTANCE",
-                                    "getHookInterceptors",
-                                    "()Ljava/util/List;",
-                                    false
-                                )*/
+                                    mv.visitMethodInsn(
+                                        Opcodes.INVOKESTATIC,
+                                        "com/lygttpod/monitor/MonitorHelper\$INSTANCE",
+                                        "getHookInterceptors",
+                                        "()Ljava/util/List;",
+                                        false
+                                    )*/
+                                mv.visitVarInsn(Opcodes.ASTORE, 10) // 保存到局部变量10
+
                                 // 获取 Builder 实例的 interceptors 字段
-                                mv.visitVarInsn(Opcodes.ALOAD, 0) // this
+                                mv.visitVarInsn(Opcodes.ALOAD, 0) // this（Builder实例）
                                 mv.visitFieldInsn(
                                     Opcodes.GETFIELD,
                                     "okhttp3/OkHttpClient\$Builder",
