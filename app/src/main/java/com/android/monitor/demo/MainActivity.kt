@@ -25,10 +25,13 @@ import com.lygttpod.monitor.MonitorHelper
 import com.lygttpod.monitor.utils.getPhoneWifiIpAddress
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
+import java.net.InetAddress
+import java.util.Arrays
 import java.util.concurrent.Executors
 
 
@@ -44,20 +47,29 @@ class MainActivity : AppCompatActivity() {
         getServiceAddress()
         spFileCommit()
 
-        // 手动注入okhttp拦截器
+
 //        val builder = client.newBuilder()
-//        builder.interceptors().addAll(MonitorHelper.hookInterceptors)
+        // 手动注入okhttp拦截器
+        //builder.interceptors().addAll(MonitorHelper.hookInterceptors)
 //        client = builder.build()
 
         initData()
+
+        Executors.newCachedThreadPool().execute {
+            val ips = Dns.SYSTEM.lookup("www.baidu.com") //InetAddress.getAllByName("www.baidu.com")
+            Log.d("host:www.baidu.com", "ips: $ips")
+        }
     }
+
     override fun onBackPressed() {
-        if (binding.webview.canGoBack()){
+        if (binding.webview.canGoBack()) {
             binding.webview.goBack()
             return
         }
         super.onBackPressed()
+        finish()
     }
+
     private fun initData() {
         binding.tvResult.setMovementMethod(ScrollingMovementMethod.getInstance());
         val callback = object : Test.HttpCallback {
@@ -85,7 +97,8 @@ class MainActivity : AppCompatActivity() {
             Executors.newCachedThreadPool().execute {
                 val map = hashMapOf("name" to "name", "token" to "123456789")
                 Test.postRequest(
-                    "https://www.wanandroid.com/lg/uncollect_originId/2333/json", map, callback)
+                    "https://www.wanandroid.com/lg/uncollect_originId/2333/json", map, callback
+                )
             }
         }
         binding.btnSendOkhttp.setOnClickListener {
@@ -123,13 +136,17 @@ class MainActivity : AppCompatActivity() {
             ): Boolean {
                 // 1. 创建临时WebView用于捕获URL
                 val result = view?.hitTestResult
-                val url = result?.extra?:"" // 获取点击链接的URL
+                val url = result?.extra ?: "" // 获取点击链接的URL
                 Log.d("shouldLoading", "_blank: $url")
                 if (url.startsWith("http", true)) {
                     view?.loadUrl(url)
                 } else {
                     val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                    if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                    if (packageManager.resolveActivity(
+                            intent,
+                            PackageManager.MATCH_DEFAULT_ONLY
+                        ) != null
+                    ) {
                         startActivity(intent)
                     } else {
                         Toast.makeText(this@MainActivity, "不支持", Toast.LENGTH_SHORT).show()
@@ -147,17 +164,27 @@ class MainActivity : AppCompatActivity() {
                     view?.loadUrl(MonitorHelper.injectVConsole())
                 }
             }
+
             @SuppressLint("WebViewClientOnReceivedSslError")
-            override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
                 handler?.proceed()//忽略证书错误
             }
+
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 Log.d("shouldLoading", "request: $url")
-                if(url?.startsWith("http", true) == true){
+                if (url?.startsWith("http", true) == true) {
                     view?.loadUrl(url)
                 } else {
                     val intent = Intent(Intent.ACTION_VIEW, url?.toUri())
-                    if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                    if (packageManager.resolveActivity(
+                            intent,
+                            PackageManager.MATCH_DEFAULT_ONLY
+                        ) != null
+                    ) {
                         startActivity(intent)
                     } else {
                         Toast.makeText(this@MainActivity, "不支持", Toast.LENGTH_SHORT).show()
@@ -165,16 +192,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 return true
             }
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
                 return this.shouldOverrideUrlLoading(view, request?.url?.toString())
             }
+
             override fun shouldInterceptRequest(
                 view: WebView?,
                 request: WebResourceRequest?
             ): WebResourceResponse? {
                 // 可以拦截请求，返回自定义的response，但不推荐
                 val response = MonitorHelper.shouldInterceptRequest(view, request)
-                if (response != null){
+                if (response != null) {
                     return response
                 }
                 return super.shouldInterceptRequest(view, request)
@@ -241,4 +273,5 @@ class MainActivity : AppCompatActivity() {
             it.putLong("keyLong", System.currentTimeMillis())
         }.apply()
     }
+
 }

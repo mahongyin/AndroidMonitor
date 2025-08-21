@@ -2,17 +2,12 @@ package com.lygttpod.monitor.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
-import android.webkit.WebView
 import androidx.core.net.toUri
-import com.lygttpod.monitor.utils.dns.HttpDns
 import okhttp3.Authenticator
 import okhttp3.Cookie
 import okhttp3.Credentials
@@ -267,11 +262,6 @@ object OkhttpUtils {
             }
         }
         return proxyAuthenticator
-    }
-
-    //TODO 自定义 DNS：通过 OkHttp 的 Dns接口实现智能路由（如故障切换），提升服务可用性
-    fun httpDns(): Dns {
-        return HttpDns()
     }
 
     /******************************  WebResourceResponse   *************************************/
