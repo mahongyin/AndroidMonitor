@@ -38,15 +38,24 @@ import javax.net.ssl.X509TrustManager
  *
  */
 object OkhttpUtils {
-    const val webUserAgent1 = "Mozilla/5.0 (Phone; OpenHarmony 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36  ArkWeb/6.0.0.39 Mobile HuaweiBrowser/5.1.7.304"
-    const val webUserAgent2 = "Mozilla/5.0 (Phone; OpenHarmony 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36  ArkWeb/4.1.6.1 Mobile HuaweiBrowser/5.1.5.330"
-    const val webUserAgent3 = "Mozilla/5.0 (Linux; Android 12; HarmonyOS; LIO-AN00; HMSCore 6.15.0.322) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.196 HuaweiBrowser/16.0.7.301 Mobile Safari/537.36"
-    const val webUserAgent4 = "Mozilla/5.0 (Linux; Android 12; LIO-AN00 Build/HUAWEILIO-AN00; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Mobile Safari/537.36"
-    const val webUserAgent = "Mozilla/5.0 (Linux; U; Android 12; zh-cn; M2002J9E Build/SKQ1.220303.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36 XiaoMi/MiuiBrowser/20.0.20728"
-    const val webUserAgent5 = "Mozilla/5.0 (Linux; U; Android 4.4.4; zh-cn; M351 Build/KTU84P) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
-    const val webUserAgent6 = "Mozilla/5.0 (Linux; Android 4.2.1; M040 Build/JOP40D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Mobile Safari/537.36"
-    const val webUserAgent7 = "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4"
-    const val webUserAgent8 = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) CriOS/31.0.1650.18 Mobile/11B554a Safari/8536.25"
+    const val webUserAgent1 =
+        "Mozilla/5.0 (Phone; OpenHarmony 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36  ArkWeb/6.0.0.39 Mobile HuaweiBrowser/5.1.7.304"
+    const val webUserAgent2 =
+        "Mozilla/5.0 (Phone; OpenHarmony 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36  ArkWeb/4.1.6.1 Mobile HuaweiBrowser/5.1.5.330"
+    const val webUserAgent3 =
+        "Mozilla/5.0 (Linux; Android 12; HarmonyOS; LIO-AN00; HMSCore 6.15.0.322) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.196 HuaweiBrowser/16.0.7.301 Mobile Safari/537.36"
+    const val webUserAgent4 =
+        "Mozilla/5.0 (Linux; Android 12; LIO-AN00 Build/HUAWEILIO-AN00; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Mobile Safari/537.36"
+    const val webUserAgent =
+        "Mozilla/5.0 (Linux; U; Android 12; zh-cn; M2002J9E Build/SKQ1.220303.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36 XiaoMi/MiuiBrowser/20.0.20728"
+    const val webUserAgent5 =
+        "Mozilla/5.0 (Linux; U; Android 4.4.4; zh-cn; M351 Build/KTU84P) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+    const val webUserAgent6 =
+        "Mozilla/5.0 (Linux; Android 4.2.1; M040 Build/JOP40D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Mobile Safari/537.36"
+    const val webUserAgent7 =
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4"
+    const val webUserAgent8 =
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) CriOS/31.0.1650.18 Mobile/11B554a Safari/8536.25"
 
     /************************************* 创建 okhttpClient ***************************************/
     // 创建忽略证书的OkHttpClient
@@ -132,16 +141,16 @@ object OkhttpUtils {
         }
     }
 
-    private fun proxySelector(): ProxySelector {
+    private fun proxySelector(host: String, proxyHost: String, port: Int): ProxySelector {
         // 自定义代理选择器
         val proxySelector = object : ProxySelector() {
             override fun select(uri: URI?): List<Proxy?>? {
-                if (uri?.host?.contains("example.com") == true) {
-                    // 为特定域名使用代理
+                if (uri?.host?.contains(host) == true) {
+                    // 为特定域名使用代理"proxy.example.com", 8080
                     return listOf(
                         Proxy(
                             Proxy.Type.HTTP,
-                            InetSocketAddress("proxy.example.com", 8080)
+                            InetSocketAddress(proxyHost, port)
                         )
                     )
                 } else {
@@ -157,7 +166,7 @@ object OkhttpUtils {
         return proxySelector
     }
 
-    private fun httpProxy(): Proxy {
+    private fun httpNoProxy(): Proxy {
         return Proxy.NO_PROXY
 //        return Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", 8888))
 //        return Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 8888))
@@ -301,13 +310,15 @@ object OkhttpUtils {
         }
         return null
     }
-    private var userAgent : String = ""
-    fun getUserAgent(context: Context?) {
+
+    private var userAgent: String = "AndroidMonitor"
+    fun initUserAgent(context: Context?) {
         userAgent = WebSettings.getDefaultUserAgent(context)
-        if (userAgent.isEmpty()){
-            userAgent = System.getProperty("http.agent") ?: "Android"
+        if (userAgent.isEmpty()) {
+            userAgent = System.getProperty("http.agent") ?: "AndroidMonitor"
         }
     }
+
     fun getResponseByOkHttp(url: String?): WebResourceResponse? {
         if (url.isNullOrBlank()) {
             return null
@@ -315,7 +326,7 @@ object OkhttpUtils {
         try {
             val requestBuilder = Request.Builder().url(url)
             requestBuilder.method("GET", null)
-            if (userAgent.isEmpty()){
+            if (userAgent.isEmpty()) {
                 userAgent = webUserAgent
             }
             requestBuilder.addHeader("User-Agent", userAgent)

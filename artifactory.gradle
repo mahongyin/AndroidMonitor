@@ -1,0 +1,37 @@
+apply plugin: 'maven-publish'
+
+android {
+    //artifactory 加了这个就传上去了
+    publishing {
+        singleVariant("release") {
+            //使用apg插件里的？会包含源码和文档
+//            withSourcesJar()
+//            withJavadocJar()
+        }
+    }
+}
+//发布插件
+publishing {
+    publications { PublicationContainer publication ->
+        maven(MavenPublication) {
+            version VERSION_NAME
+            artifactId 'monitor-plugin'
+            groupId 'com.mhy.plugin'
+//            from components.java
+            from components.release
+        }
+    }
+    repositories { RepositoryHandler handler ->
+        handler.maven { MavenArtifactRepository mavenArtifactRepository -> //正式仓库
+            //上传到项目本地仓库
+            url '..\\localmaven' //MAVEN_URL //
+            if (url.toString().startsWith("http")) {
+                allowInsecureProtocol = true
+                credentials {
+                    username = MAVEN_USER
+                    password = MAVEN_PASSWORD
+                }
+            }
+        }
+    }
+}

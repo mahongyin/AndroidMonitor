@@ -17,19 +17,19 @@
 //    implementation 'cn.quinnchen.hunter:hunter-transform:1.2.3'
 //}
 
+//sourceSets { SourceSetContainer sourceSets ->
+//    sourceSets.main.java.srcDirs('src/main/java', 'src/main/groovy', 'src/main/kotlin')
+//}
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_1_8
 //    targetCompatibility = JavaVersion.VERSION_1_8
 //}
-//sourceSets { SourceSetContainer sourceSets ->
-//    sourceSets.main.java.srcDirs('src/main/java', 'src/main/groovy', 'src/main/kotlin')
-//}
+
 
 plugins {
     //id 'java'
     id 'groovy'
     id 'kotlin'
-    id 'maven-publish'
 }
 
 //java {
@@ -64,30 +64,4 @@ dependencies {
 }
 
 //maven仓库
-//apply from: '../upload.gradle'
-
-//发布插件
-publishing {
-    repositories { RepositoryHandler handler ->
-        handler.maven { MavenArtifactRepository mavenArtifactRepository -> //正式仓库
-            //上传到项目本地仓库
-            url '..\\localmaven' //MAVEN_URL //
-            allowInsecureProtocol = true
-            if (url.toString().startsWith("http")) {
-                credentials {
-                    username = MAVEN_USER
-                    password = MAVEN_PASSWORD
-                }
-            }
-        }
-    }
-
-    publications { PublicationContainer publication ->
-        maven(MavenPublication) {
-            version '0.1.1'
-            artifactId 'monitor-plugin'
-            groupId 'com.mhy.plugin'
-            from components.java
-        }
-    }
-}
+apply from: '../upload.gradle'

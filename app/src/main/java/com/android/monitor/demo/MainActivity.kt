@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getServiceAddress() {
         getPhoneWifiIpAddress()?.let {
-            val monitorUrl = "$it:${MonitorHelper.port}/index"
+            val monitorUrl = "$it:${MonitorHelper.getPort()}/index"
             binding.tvAddress.text = monitorUrl
         }
     }

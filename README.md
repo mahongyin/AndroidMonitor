@@ -3,7 +3,7 @@
 ### [**Demo下载体验**](https://www.pgyer.com/AndroidMonitor)
 
 ### [**文章介绍---->Android抓包从未如此简单**](https://juejin.cn/post/7119083753376317448)
-APG8
+APG8 版本 Java17
 https://www.jianshu.com/p/b6f6d63061e4
 
 ## 切记：monitor需要配合monitor-plugin使用
@@ -12,7 +12,7 @@ https://www.jianshu.com/p/b6f6d63061e4
 
 添加依赖
 ```
-   debugImplementation 'io.github.lygttpod:monitor:0.1.1'
+   debugImplementation 'io.github.mahongyin:monitor:1.0.0'
 ```
 -备注： 使用debugImplementation是为了只在测试环境中引入
 
@@ -24,7 +24,7 @@ https://www.jianshu.com/p/b6f6d63061e4
         dependencies {
             ......
             //monitor-plugin需要
-            classpath 'io.github.lygttpod:monitor-plugin:0.0.2'
+            classpath 'io.github.mahongyin:monitor-plugin:1.0.0'
         }
     }
 

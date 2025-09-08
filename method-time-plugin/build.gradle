@@ -84,7 +84,7 @@ publishing {
 
     publications { PublicationContainer publication ->
         maven(MavenPublication) {
-            version '0.1.1'
+            version VERSION_NAME
             artifactId 'method-time-plugin'
             groupId 'com.mhy.plugin'
             from components.java

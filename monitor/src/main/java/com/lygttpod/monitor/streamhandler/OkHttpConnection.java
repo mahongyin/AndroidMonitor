@@ -23,14 +23,16 @@ public class OkHttpConnection extends HttpURLConnection {
     private final OkHttpClient okHttpClient;
     private Buffer requestBodyBuffer;
     private Response okHttpResponse; // 保存OkHttp响应
+    private Proxy mProxy;
 
     public OkHttpConnection(URL u) {
         super(u);
+        // 直接连接，不使用代理
         this.okHttpClient = OkhttpUtils.INSTANCE.createOkhttpClient(null, null, null, null);
     }
     public OkHttpConnection(URL u, Proxy p) {
         super(u);
-        // 直接连接，不使用代理
+        mProxy = p;
         this.okHttpClient = OkhttpUtils.INSTANCE.createOkhttpClient(p, null, null, null);
     }
 
@@ -44,7 +46,7 @@ public class OkHttpConnection extends HttpURLConnection {
                 .build();
 
         // 执行同步请求（异步需回调处理）
-        okHttpResponse = okHttpClient.newCall(request).execute();
+        okHttpResponse = this.okHttpClient.newCall(request).execute();
         connected = true;
         requestBodyBuffer = null;
     }
@@ -61,8 +63,8 @@ public class OkHttpConnection extends HttpURLConnection {
             contentTypeList = List.of("text/plain");
         }
         // TODO 没测试文件上传
-        if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) {
-            // POST/PUT 必须提供非空 RequestBody
+        if ("POST".equalsIgnoreCase(getRequestMethod()) || "PUT".equalsIgnoreCase(getRequestMethod())) {
+            // POST/PUT 必须提供非空 RequestBody, 否则 OkHttp 会抛出异常。
             if (requestBodyBuffer != null) {
 //                ByteString byteString = requestBodyBuffer.snapshot();
 //                byte[] byteArray = byteString.toByteArray();
@@ -86,7 +88,7 @@ public class OkHttpConnection extends HttpURLConnection {
 //                            RequestBody.create(file, MediaType.parse("application/octet-stream")))
 //                    .build();
         }
-        return null; // GET/DELETE 等无请求体的方法返回 null 否则 OkHttp 会抛出异常。
+        return null; // GET/DELETE 等无请求体的方法返回null即可
     }
 
     @Override
@@ -127,10 +129,11 @@ public class OkHttpConnection extends HttpURLConnection {
     @Override
     public void disconnect() {
         if (okHttpResponse != null) okHttpResponse.close();
+        connected = false;
     }
 
     @Override
     public boolean usingProxy() {
-        return false;
+        return mProxy != null;
     }
 }

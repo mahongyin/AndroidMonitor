@@ -46,7 +46,7 @@ class MonitorMainActivity : AppCompatActivity(), NavigationBarView.OnItemSelecte
         }
         getPhoneWifiIpAddress()?.let {
             binding.tvWifiAddress.visibility = View.VISIBLE
-            val monitorUrl = "局域网内可访问：$it:${MonitorHelper.port}/index"
+            val monitorUrl = "局域网内可访问：$it:${MonitorHelper.getPort()}/index"
             binding.tvWifiAddress.text = monitorUrl
             Log.d("MonitorHelper", monitorUrl)
         }

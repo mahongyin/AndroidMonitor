@@ -1,8 +1,9 @@
 package com.lygttpod.monitor
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
+import android.text.TextUtils
 import android.util.Log
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -23,17 +24,14 @@ import com.lygttpod.monitor.interceptor.MonitorWeakNetworkInterceptor
 import com.lygttpod.monitor.room.MonitorDao
 import com.lygttpod.monitor.room.MonitorDatabase
 import com.lygttpod.monitor.service.MonitorService
-import com.lygttpod.monitor.streamhandler.OkHttpConnection
+import com.lygttpod.monitor.streamhandler.OkHttpURLStreamHandler
 import com.lygttpod.monitor.utils.MonitorProperties
 import com.lygttpod.monitor.utils.OkhttpUtils
 import com.lygttpod.monitor.utils.SPUtils
 import com.lygttpod.monitor.utils.defaultContentTypes
 import com.lygttpod.monitor.utils.lastUpdateDataId
 import java.io.File
-import java.io.IOException
-import java.net.Proxy
 import java.net.URL
-import java.net.URLConnection
 import java.net.URLStreamHandler
 import java.net.URLStreamHandlerFactory
 import java.security.SecureRandom
@@ -45,8 +43,6 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import kotlin.concurrent.thread
-import kotlin.text.lowercase
-import kotlin.text.substring
 
 
 @SuppressLint("StaticFieldLeak")
@@ -57,7 +53,7 @@ object MonitorHelper {
     var context: Context? = null
     var monitorDb: MonitorDatabase? = null
 
-    var port = 0
+    private var port = 0
 
     //有从来ASM修改字节码对OKHTTP进行hook用的
     val hookInterceptors = listOf(
@@ -89,18 +85,18 @@ object MonitorHelper {
     fun init(context: Context) {
         MonitorHelper.context = context
         thread {
+            // 获取相关配置
             val propertiesData = MonitorProperties().paramsProperties()
             val dbName: String = propertiesData?.dbName ?: "monitor_room_db"
             val contentTypes = propertiesData?.whiteContentTypes
-            whiteContentTypes =
-                if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
+            whiteContentTypes = if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
             whiteHosts = propertiesData?.whiteHosts
             blackHosts = propertiesData?.blackHosts
             port = propertiesData?.port?.toInt() ?: 0
             isFilterIPAddressHost = propertiesData?.isFilterIPAddressHost ?: false
             initMonitorDataDao(context, dbName)
             initPCService(context, port)
-            OkhttpUtils.getUserAgent(context)
+            OkhttpUtils.initUserAgent(context)
         }
     }
 
@@ -111,9 +107,12 @@ object MonitorHelper {
                 ServiceConfig(MonitorService::class.java, port)
             else ServiceConfig(MonitorService::class.java)
         )
-        MonitorHelper.port = ALSHelper.serviceList.firstOrNull()?.port ?: 0
+        // 不管是公配还是(优先)单配 获取正使用的端口
+        MonitorHelper.port = ALSHelper.getServiceList().firstOrNull()?.port ?: 0
     }
-
+    fun getPort(): Int {
+        return port
+    }
     private fun initMonitorDataDao(context: Context, dbName: String) {
         if (monitorDb == null) {
             monitorDb = Room
@@ -217,6 +216,34 @@ object MonitorHelper {
         SPUtils.saveValue(context ?: return, fileName, key, value)
     }
 
+    /**
+     * 用进程pid当端口号。进程id 32位整数（4 字节） 通常范围通常从 1-32768（系统相关）由操作系统分配和管理
+     * 端口范围 2字节 系统端口(0-1023)、注册端口(1024-49151)和动态端口(49152-65535)
+     */
+    fun getMyPid(): String {
+        val myPid = android.os.Process.myPid().toString()
+        if (myPid.isEmpty()) {
+            // 需要权限: <uses-permission android:name="android.permission.GET_TASKS" />
+            val activityManager =
+                context?.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            val processes = activityManager?.runningAppProcesses
+            if (processes != null) {
+                for (processInfo in processes) {
+                    val processName = processInfo.processName
+                    val pid = processInfo.pid
+                    if (context?.packageName == processName) {
+                        Log.d(TAG, "Process Name: $processName, PID: $pid")
+                        return "${pid}"
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "Process PID: $myPid")
+        if (TextUtils.isEmpty(myPid)){
+            return "0"
+        }
+        return myPid
+    }
     /************************************ WebView  ******************************************/
     /**
      * 做一些过滤
@@ -337,21 +364,8 @@ object MonitorHelper {
         URL.setURLStreamHandlerFactory(object : URLStreamHandlerFactory {
             override fun createURLStreamHandler(protocol: String?): URLStreamHandler? {
                 if ("http" == protocol || "https" == protocol) {
-                    val urlStreamHandler = object : URLStreamHandler() {
-                        @Throws(IOException::class)
-                        override fun openConnection(u: URL?): URLConnection? {
-                            //Log.d(TAG, "Intercepted URL: $u")
-                            // okhttp代理
-                            return OkHttpConnection(u)
-                        }
-
-                        @Throws(IOException::class)
-                        override fun openConnection(u: URL?, p: Proxy?): URLConnection? {
-                            return OkHttpConnection(u, p)
-                        }
-                    }
                     //URLStreamHandler返回包装后的 HttpsURLConnection，用于拦截数据
-                    return urlStreamHandler
+                    return OkHttpURLStreamHandler()
                 }
                 return null // 其他协议使用默认实现
             }

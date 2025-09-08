@@ -23,32 +23,6 @@ class MonitorProperties {
         private const val ASSETS_FILE_NAME = "monitor.properties"
     }
 
-    /**
-     * 用进程pid当端口号。进程id 32位整数（4 字节） 通常范围通常从 1-32768（系统相关）由操作系统分配和管理
-     * 端口范围 2字节 系统端口(0-1023)、注册端口(1024-49151)和动态端口(49152-65535)
-     */
-    private fun getMyPid(): String {
-        val myPid = android.os.Process.myPid().toString()
-        if (myPid.isEmpty()) {
-            // 需要权限: <uses-permission android:name="android.permission.GET_TASKS" />
-            val context = MonitorHelper.context
-            val activityManager =
-                context?.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-            val processes = activityManager?.runningAppProcesses
-            if (processes != null) {
-                for (processInfo in processes) {
-                    val processName = processInfo.processName
-                    val pid = processInfo.pid
-                    if (context.packageName == processName) {
-                        Log.d(TAG, "Process Name: $processName, PID: $pid")
-                        return "${pid}"
-                    }
-                }
-            }
-        }
-        Log.d(TAG, "Process PID: $myPid")
-        return myPid
-    }
 
     fun paramsProperties(): PropertiesData? {
         var propertiesData: PropertiesData? = null
@@ -64,7 +38,7 @@ class MonitorProperties {
             inputStream = context.assets.open(ASSETS_FILE_NAME)
             if (inputStream != null) {
                 p.load(inputStream)
-                val port = getMyPid()//p.getProperty(KEY_MONITOR_PORT)
+                val port = MonitorHelper.getMyPid()//p.getProperty(KEY_MONITOR_PORT)
                 val dbName = p.getProperty(KEY_MONITOR_DB_NAME)
                 val whiteContentTypes = p.getProperty(KEY_WHITE_CONTENT_TYPES)
                 //获取配置的host白名单

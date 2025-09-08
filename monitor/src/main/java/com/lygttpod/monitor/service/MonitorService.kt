@@ -1,8 +1,8 @@
 package com.lygttpod.monitor.service
 
-import com.android.local.service.annotation.Get
+import com.android.local.service.annotation.Request
 import com.android.local.service.annotation.Page
-import com.android.local.service.annotation.Service
+import com.android.local.service.annotation.ServicePort
 import com.lygttpod.monitor.MonitorHelper
 import com.lygttpod.monitor.data.MonitorData
 import com.lygttpod.monitor.enum.SPValueType
@@ -11,7 +11,7 @@ import com.lygttpod.monitor.utils.ServiceDataProvider
 import com.lygttpod.monitor.utils.lastUpdateDataId
 import com.lygttpod.monitor.weaknetwork.WeakNetworkHelper
 
-@Service(port = 9527)
+@ServicePort(port = 9527)
 abstract class MonitorService {
 
     @Page("index")
@@ -23,17 +23,17 @@ abstract class MonitorService {
     @Page("mqtt_index")
     fun showMqttPage() = "mqtt_index.html"
 
-    @Get("query")
+    @Request("query")
     fun queryMonitorData(limit: Int, offset: Int): MutableList<MonitorData> {
         return ServiceDataProvider.getMonitorDataList(limit, offset)
     }
 
-    @Get("clean")
+    @Request("clean")
     fun cleanMonitorData() {
         MonitorHelper.deleteAll()
     }
 
-    @Get("autoFetch")
+    @Request("autoFetch")
     fun autoFetchData(lastFetchId: Long): MutableList<MonitorData> {
         while (true) {
             Thread.sleep(1000)
@@ -45,13 +45,13 @@ abstract class MonitorService {
         }
     }
 
-    @Get("sharedPrefs")
+    @Request("sharedPrefs")
     fun getSharedPrefsFilesData() = MonitorHelper.getSharedPrefsFilesData()
 
-    @Get("getSharedPrefsByFileName")
+    @Request("getSharedPrefsByFileName")
     fun getSharedPrefsByFileName(fileName: String) = MonitorHelper.getSpFile(fileName)
 
-    @Get("updateSpValue")
+    @Request("updateSpValue")
     fun updateSpValue(fileName: String, key: String, value: String, valueType: String) {
         val realValue = when (valueType) {
             SPValueType.Int.value -> value.toIntOrNull()
@@ -64,17 +64,17 @@ abstract class MonitorService {
         MonitorHelper.updateSpValue(fileName, key, realValue)
     }
 
-    @Get("setWeakNetConfig")
+    @Request("setWeakNetConfig")
     fun configWeak(weakType: String) {
         WeakNetworkHelper.configWeak(weakType)
     }
 
-    @Get("setMockConfig")
+    @Request("setMockConfig")
     fun setMockConfig(mockBaseUrl: String, mockPath: String, mockResponse: String) {
         MockHelper.configMock(mockBaseUrl, mockPath, mockResponse)
     }
 
-    @Get("openMockService")
+    @Request("openMockService")
     fun openMockService(isOpen: Boolean) {
         MockHelper.isOpen = isOpen
     }

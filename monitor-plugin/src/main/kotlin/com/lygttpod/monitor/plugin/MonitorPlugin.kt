@@ -38,6 +38,8 @@ class MonitorPlugin : Plugin<Project> {
                     // PROJECT 搭配 COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS 指定该字节码转换器只在当前项目生效，不会对第三方依赖lib生效
                     //setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS)
                 }
+            } else {
+                println("MonitorPlugin---->${variant.buildType}-构建中不启用")
             }
         }
     }
