@@ -2,10 +2,10 @@ rootProject.name = "AndroidMonitor"
 include ':app'
 include ':monitor'
 // 方法一：先 include 再重新指定 projectDir
-include ':monitor-plugin-agp8'
-project(':monitor-plugin-agp8').projectDir = new File('./monitor-plugin')
+//include ':monitor-plugin-agp8'
+//project(':monitor-plugin-agp8').projectDir = new File('./monitor-plugin')
 // 方法二：使用 name 属性设置别名
-//include ':monitor-plugin'
+include ':monitor-plugin'
 //project(':monitor-plugin').name = 'monitor-plugin-agp8'
 
 include ':method-time-plugin'
