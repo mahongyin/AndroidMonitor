@@ -3,12 +3,14 @@ package com.android.monitor.demo
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.android.monitor.demo.databinding.ActivityMainBinding
-import com.lygttpod.monitor.MonitorHelper
-import com.lygttpod.monitor.utils.getPhoneWifiIpAddress
 import okhttp3.*
 import okio.IOException
+import java.net.Inet4Address
+import java.net.NetworkInterface
+import java.net.SocketException
 
 class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
@@ -51,11 +53,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun getServiceAddress() {
         getPhoneWifiIpAddress()?.let {
-            val monitorUrl = "$it:${MonitorHelper.port}/index"
+            val monitorUrl = "$it:${9527}/index"
             binding.tvAddress.text = monitorUrl
         }
     }
-
+    fun getPhoneWifiIpAddress(): String? {
+        try {
+            val networkInterfaces = NetworkInterface.getNetworkInterfaces() ?: return null
+            while (networkInterfaces.hasMoreElements()) {
+                val networkInterface = networkInterfaces.nextElement()
+                val inetAddresses = networkInterface.inetAddresses
+                while (inetAddresses.hasMoreElements()) {
+                    val inetAddress = inetAddresses.nextElement()
+                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
+                        return inetAddress.getHostAddress()
+                    }
+                }
+            }
+        } catch (e: SocketException) {
+            Log.e("MonitorPCService", "get ip", e)
+            return null
+        }
+        return null
+    }
     private fun spFileCommit() {
         getSharedPreferences("spFileName111", Context.MODE_PRIVATE).edit().also {
             it.putString("testString", "我是字符串")

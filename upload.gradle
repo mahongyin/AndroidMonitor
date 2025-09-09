@@ -11,18 +11,18 @@ allprojects {
 publishing {
     repositories {
         maven {
-            allowInsecureProtocol = true
-            def uploadLocal = findProperty("UPLOAD_LOCAL") ? UPLOAD_LOCAL : "false"
-            if (new Boolean(uploadLocal)) {
-                String homeDir = System.getProperty("user.home")
-                url = "file://$homeDir/maven/repos/"
+            def uploadLocal = true
+            if (uploadLocal) {
+                url = "../localmaven"
             } else {
-                url = version.endsWith('SNAPSHOT') ? mavenSnapshotsUrl : mavenReleasesUrl
+                allowInsecureProtocol = true
+                // 旧方式上传。 url引用不行 只能在这写url....
+                setUrl(sonatypeReleasesUrl)
                 credentials {
-                    def localProperties = new Properties()
-                    localProperties.load(new FileInputStream(rootProject.file("local.properties")))
-                    username = localProperties.getProperty('mavenCentralUsername')
-                    password = localProperties.getProperty('mavenCentralPassword')
+//                    def localProperties = new Properties()
+//                    localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+                    username = mavenCentralUsername
+                    password = mavenCentralPassword
                 }
             }
         }

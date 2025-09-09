@@ -6,8 +6,16 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\ApkKey\\55.jks')
+            storePassword '201055'
+            keyAlias '55'
+            keyPassword '201055'
+        }
+    }
     compileSdk 31
-
+    namespace "com.lygttpod.monitor.demo"
     defaultConfig {
         applicationId "com.android.monitor.demo"
         minSdk 21
@@ -20,8 +28,12 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {

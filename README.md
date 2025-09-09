@@ -4,8 +4,7 @@
 
 ### [**文章介绍---->Android抓包从未如此简单**](https://juejin.cn/post/7119083753376317448)
 
-
-
+ agp4  JDK8
 ## 切记：monitor需要配合monitor-plugin使用
 
 ### 1、monitor接入
