@@ -17,3 +17,6 @@ dependencies {
 }
 
 apply from: '../upload.gradle'
+
+//0.1.0 系列是agp4 jdk8,   1.0.0是agp8 jdk17
+// 出包后 将localmaven下的包压缩zip。然后手动上传https://central.sonatype.com/publishing
