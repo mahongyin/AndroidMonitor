@@ -333,7 +333,7 @@ object MonitorHelper {
     }
 
     fun injectVConsole() :String{
-        val console = "https://unpkg.com/vconsole@3.11.2/dist/vconsole.min.js"
+        val console = "https://unpkg.com/vconsole@3.14.6/dist/vconsole.min.js"
         val jsFun =
         "javascript:(function(){ " +
                 "if (typeof window.vConsole !== 'undefined' && vConsole instanceof Object) { " +
