@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.android.monitor.demo.databinding.ActivityMainBinding
 import com.lygttpod.monitor.MonitorHelper
-import com.lygttpod.monitor.utils.getPhoneWifiIpAddress
+
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Dns
@@ -30,7 +30,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
+import java.net.Inet4Address
 import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
 import java.util.Arrays
 import java.util.concurrent.Executors
 
@@ -156,14 +159,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.webview.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
-                } else {
-                    view?.loadUrl(MonitorHelper.injectVConsole())
-                }
-            }
 
             @SuppressLint("WebViewClientOnReceivedSslError")
             override fun onReceivedSslError(
@@ -200,6 +195,14 @@ class MainActivity : AppCompatActivity() {
                 return this.shouldOverrideUrlLoading(view, request?.url?.toString())
             }
 
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
+                } else {
+                    view?.loadUrl(MonitorHelper.injectVConsole())
+                }
+            }
             override fun shouldInterceptRequest(
                 view: WebView?,
                 request: WebResourceRequest?
@@ -212,6 +215,7 @@ class MainActivity : AppCompatActivity() {
                 return super.shouldInterceptRequest(view, request)
             }
 
+//            有这个上面哪个不执行/。。。
 //            override fun shouldInterceptRequest(
 //                view: WebView?,
 //                url: String?
@@ -223,6 +227,7 @@ class MainActivity : AppCompatActivity() {
 //                return super.shouldInterceptRequest(view, url)
 //            }
         }
+
         binding.webview.loadUrl("https://juejin.cn/")
     }
 
@@ -252,11 +257,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun getServiceAddress() {
         getPhoneWifiIpAddress()?.let {
-            val monitorUrl = "$it:${MonitorHelper.getPort()}/index"
+            val monitorUrl = "$it:${9527}/index"
             binding.tvAddress.text = monitorUrl
         }
     }
-
+    fun getPhoneWifiIpAddress(): String? {
+        try {
+            val networkInterfaces = NetworkInterface.getNetworkInterfaces() ?: return null
+            while (networkInterfaces.hasMoreElements()) {
+                val networkInterface = networkInterfaces.nextElement()
+                val inetAddresses = networkInterface.inetAddresses
+                while (inetAddresses.hasMoreElements()) {
+                    val inetAddress = inetAddresses.nextElement()
+                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
+                        return inetAddress.getHostAddress()
+                    }
+                }
+            }
+        } catch (e: SocketException) {
+            Log.e("MonitorPCService", "get ip", e)
+            return null
+        }
+        return null
+    }
     private fun spFileCommit() {
         getSharedPreferences("spFileName111", Context.MODE_PRIVATE).edit().also {
             it.putString("testString", "我是字符串")

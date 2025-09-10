@@ -1,7 +1,7 @@
 package com.lygttpod.monitor.service
 
-import com.android.local.service.annotation.Request
 import com.android.local.service.annotation.Page
+import com.android.local.service.annotation.Request
 import com.android.local.service.annotation.ServicePort
 import com.lygttpod.monitor.MonitorHelper
 import com.lygttpod.monitor.data.MonitorData
@@ -24,7 +24,8 @@ abstract class MonitorService {
     fun showMqttPage() = "mqtt_index.html"
 
     @Request("query")
-    fun queryMonitorData(limit: Int, offset: Int): MutableList<MonitorData> {
+    fun queryMonitorData(limit: Int, page: Int = 1): MutableList<MonitorData> {
+        val offset = (page-1) * limit
         return ServiceDataProvider.getMonitorDataList(limit, offset)
     }
 

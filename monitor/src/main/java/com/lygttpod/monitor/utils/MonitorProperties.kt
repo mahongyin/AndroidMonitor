@@ -1,7 +1,5 @@
 package com.lygttpod.monitor.utils
 
-import android.app.ActivityManager
-import android.content.Context
 import android.util.Log
 import com.lygttpod.monitor.MonitorHelper
 import com.lygttpod.monitor.data.PropertiesData
@@ -38,7 +36,7 @@ class MonitorProperties {
             inputStream = context.assets.open(ASSETS_FILE_NAME)
             if (inputStream != null) {
                 p.load(inputStream)
-                val port = MonitorHelper.getMyPid()//p.getProperty(KEY_MONITOR_PORT)
+                val port = p.getProperty(KEY_MONITOR_PORT)
                 val dbName = p.getProperty(KEY_MONITOR_DB_NAME)
                 val whiteContentTypes = p.getProperty(KEY_WHITE_CONTENT_TYPES)
                 //获取配置的host白名单

@@ -6,7 +6,10 @@ buildscript {
         mavenCentral()
         // url uri('./localmaven')
         maven { url './localmaven/'}
-
+        maven {
+            name = 'Central Portal Snapshots'
+            url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0' //对应kotlin 1.9.0
@@ -14,8 +17,7 @@ buildscript {
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'
         //1、依赖抓包插件库
 //        classpath 'io.github.lygttpod:monitor-plugin:0.0.2'
-//        classpath 'io.github.mahongyin:monitor-plugin:0.8.0'
-        classpath 'com.mhy.plugin:monitor-plugin:0.1.1'
+        classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.1-SNAPSHOT'
         //classpath 'com.mhy.plugin:method-time-plugin:0.1.1'
 
     }

@@ -11,12 +11,10 @@ apply plugin: 'com.vanniktech.maven.publish'
 //publishing {
 //    repositories {
 //        maven {
-//            allowInsecureProtocol = true
-//            def uploadLocal = findProperty("UPLOAD_LOCAL") ? UPLOAD_LOCAL : "false"
-//            if (new Boolean(uploadLocal)) {
-//                String homeDir = System.getProperty("user.home")
-//                url = "file://$homeDir/maven/repos/"
+//            if (uploadLocal) {
+//                url = "../localmaven"
 //            } else {
+//                allowInsecureProtocol = true
 //                url = version.endsWith('SNAPSHOT') ? mavenSnapshotsUrl : mavenReleasesUrl
 //                credentials {
 //                    def localProperties = new Properties()

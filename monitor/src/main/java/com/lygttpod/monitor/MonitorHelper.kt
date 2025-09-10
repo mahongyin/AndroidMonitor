@@ -95,20 +95,22 @@ object MonitorHelper {
             port = propertiesData?.port?.toInt() ?: 0
             isFilterIPAddressHost = propertiesData?.isFilterIPAddressHost ?: false
             initMonitorDataDao(context, dbName)
-            initPCService(context, port)
+            initPCService(context)
             OkhttpUtils.initUserAgent(context)
         }
     }
 
-    private fun initPCService(context: Context, port: Int = 0) {
+    private fun initPCService(context: Context) {
         ALSHelper.init(context)
         ALSHelper.startService(
-            if (port > 0)
+            if (port > 0) {//使用自定义端口
                 ServiceConfig(MonitorService::class.java, port)
-            else ServiceConfig(MonitorService::class.java)
+            } else {// 使用注解设置的端口
+                ServiceConfig(MonitorService::class.java)
+            }
         )
         // 不管是公配还是(优先)单配 获取正使用的端口
-        MonitorHelper.port = ALSHelper.getServiceList().firstOrNull()?.port ?: 0
+        port = ALSHelper.getServiceList().firstOrNull()?.port ?: 0
     }
     fun getPort(): Int {
         return port
@@ -245,6 +247,9 @@ object MonitorHelper {
         return myPid
     }
     /************************************ WebView  ******************************************/
+    fun handleWebView(){
+
+    }
     /**
      * 做一些过滤
      */

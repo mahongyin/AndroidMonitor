@@ -27,11 +27,11 @@ import okhttp3.OkHttpClient;
 public class Test {
     public static void main(String[] args) {
         System.out.println("Hello World!");
-        OkHttpClient client;
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        List<Interceptor> list = MonitorHelper.INSTANCE.getHookInterceptors();
-        builder.interceptors().addAll(list);
-        client = builder.build();
+//        OkHttpClient client;
+//        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+//        List<Interceptor> list = MonitorHelper.INSTANCE.getHookInterceptors();
+//        builder.interceptors().addAll(list);
+//        client = builder.build();
 
     }
    public interface HttpCallback {
