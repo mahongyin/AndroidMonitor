@@ -3,11 +3,14 @@ package com.lygttpod.monitor
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
+import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.Room
@@ -30,6 +33,7 @@ import com.lygttpod.monitor.utils.OkhttpUtils
 import com.lygttpod.monitor.utils.SPUtils
 import com.lygttpod.monitor.utils.defaultContentTypes
 import com.lygttpod.monitor.utils.lastUpdateDataId
+import com.lygttpod.monitor.web.ProxyWebViewClient
 import java.io.File
 import java.net.URL
 import java.net.URLStreamHandler
@@ -89,7 +93,8 @@ object MonitorHelper {
             val propertiesData = MonitorProperties().paramsProperties()
             val dbName: String = propertiesData?.dbName ?: "monitor_room_db"
             val contentTypes = propertiesData?.whiteContentTypes
-            whiteContentTypes = if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
+            whiteContentTypes =
+                if (contentTypes.isNullOrBlank()) defaultContentTypes else contentTypes
             whiteHosts = propertiesData?.whiteHosts
             blackHosts = propertiesData?.blackHosts
             port = propertiesData?.port?.toInt() ?: 0
@@ -112,9 +117,11 @@ object MonitorHelper {
         // 不管是公配还是(优先)单配 获取正使用的端口
         port = ALSHelper.getServiceList().firstOrNull()?.port ?: 0
     }
+
     fun getPort(): Int {
         return port
     }
+
     private fun initMonitorDataDao(context: Context, dbName: String) {
         if (monitorDb == null) {
             monitorDb = Room
@@ -241,18 +248,24 @@ object MonitorHelper {
             }
         }
         Log.d(TAG, "Process PID: $myPid")
-        if (TextUtils.isEmpty(myPid)){
+        if (TextUtils.isEmpty(myPid)) {
             return "0"
         }
         return myPid
     }
-    /************************************ WebView  ******************************************/
-    fun handleWebView(){
 
+    /************************************ WebView  ******************************************/
+
+    @SuppressLint("SetJavaScriptEnabled")
+    fun handleWebViewClient(webView: WebView?, client: WebViewClient?): WebViewClient {
+        webView?.settings?.javaScriptEnabled = true
+        return ProxyWebViewClient(client)
     }
+
     /**
      * 做一些过滤
      */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun shouldIntercept(webResourceRequest: WebResourceRequest?): Boolean {
         if (webResourceRequest == null) {
             return false
@@ -299,6 +312,7 @@ object MonitorHelper {
         return false
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
         if (shouldIntercept(request)) {
             return OkhttpUtils.getResponseByOkHttp(request)
@@ -306,15 +320,16 @@ object MonitorHelper {
         return null
     }
 
-    //no log txt json xml
+    //no .log .txt .json .xml
     private val extensions = arrayOf(
         ".css", ".js", ".jpg", ".jpeg", ".image", ".png", ".gif", ".ico", ".icon", ".svg",
         ".woff2", ".ttf", ".eot", ".pdf", ".zip", ".mp4", ".mp3", ".avi", ".mov", ".woff",
         ".webp", ".webm", ".awebp", ".md", ".ttc", ".otf", ".jsp", ".php", ".html", ".htm",
-        ".xhtml", ".shtml", ".asp", ".aspx", ".wav", ".ogg", ".wmv",".flv",".m3u8",
-        ".mkv", ".webm", ".ts", ".doc", ".docx",".xls", ".xlsx", ".ppt", ".pptx",
-        ".rar", ".7z", ".tar", ".gz", ".exe", ".dll", ".so", ".apk"
+        ".xhtml", ".shtml", ".asp", ".aspx", ".wav", ".ogg", ".wmv", ".flv", ".m3u8",
+        ".mkv", ".webm", ".ts", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+        ".rar", ".7z", ".tar", ".gz", ".exe", ".dll", ".so", ".apk", ".wasm"
     )
+
     fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
         //Log.d("shouldIntercept", "url: $url")
         //Patterns.WEB_URL.matcher(url).matches() || URLUtil.isValidUrl(url)
@@ -337,27 +352,27 @@ object MonitorHelper {
         return OkhttpUtils.getResponseByOkHttp(url)
     }
 
-    fun injectVConsole() :String{
+    fun injectVConsole(): String {
         val console = "https://unpkg.com/vconsole@3.14.6/dist/vconsole.min.js"
         val jsFun =
-        "javascript:(function(){ " +
-                "if (typeof window.vConsole !== 'undefined' && vConsole instanceof Object) { " +
-                " console.log('vConsole已添加');" +
-                "} else {" +
-                "console.log('vConsole去添加');" +
-                "if(document.head && !document.getElementById('v_console')) {" +
-                "var injectScript = document.createElement('script');" +
-                "injectScript.src='"+console+"';" +
-                "injectScript.id='v_console';" +
-                "injectScript.type='text/javascript';" +
-                "injectScript.onload=function() {" +
-                "let vConsole = new VConsole();" +
-                "console.log('vConsole实例化成功'); " +
-                "};" +
-                "document.head.appendChild(injectScript);" +
-                "} " +
-                "};" +
-                "})();"
+            "javascript:(function(){ " +
+                    "if (typeof window.vConsole !== 'undefined' && vConsole instanceof Object) { " +
+                    " console.log('vConsole已添加');" +
+                    "} else {" +
+                    "console.log('vConsole去添加');" +
+                    "if(document.head && !document.getElementById('v_console')) {" +
+                    "var injectScript = document.createElement('script');" +
+                    "injectScript.src='" + console + "';" +
+                    "injectScript.id='v_console';" +
+                    "injectScript.type='text/javascript';" +
+                    "injectScript.onload=function() {" +
+                    "let vConsole = new VConsole();" +
+                    "console.log('vConsole实例化成功'); " +
+                    "};" +
+                    "document.head.appendChild(injectScript);" +
+                    "} " +
+                    "};" +
+                    "})();"
         return jsFun
     }
 

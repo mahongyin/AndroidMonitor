@@ -34,6 +34,12 @@ class MonitorPlugin : Plugin<Project> {
                         OkHttpClassVisitorFactory::class.java,
                         InstrumentationScope.ALL
                     ) {}
+
+                    transformClassesWith(
+                        WebClientClassVisitorFactory::class.java,
+                        InstrumentationScope.PROJECT
+                    ) {}
+
                     //InstrumentationScope.ALL 配合 FramesComputationMode.COPY_FRAMES指定该字节码转换器在全局生效，包括第三方lib
                     setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
                     // PROJECT 搭配 COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS 指定该字节码转换器只在当前项目生效，不会对第三方依赖lib生效

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.http.SslError
-import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.text.method.ScrollingMovementMethod
@@ -13,7 +12,6 @@ import android.util.Log
 import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -21,8 +19,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.android.monitor.demo.databinding.ActivityMainBinding
-import com.lygttpod.monitor.MonitorHelper
-
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Dns
@@ -31,15 +27,14 @@ import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
-import java.util.Arrays
 import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
     private var client = OkHttpClient()
+    private var webview: WebView? = null
 
     private lateinit var binding: ActivityMainBinding
 
@@ -65,8 +60,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (binding.webview.canGoBack()) {
-            binding.webview.goBack()
+        if (webview?.canGoBack() == true) {
+            webview?.goBack()
             return
         }
         super.onBackPressed()
@@ -108,11 +103,17 @@ class MainActivity : AppCompatActivity() {
             sendRequest("https://www.wanandroid.com/banner/json")
         }
         webview()
-        binding.webview.clearHistory()
-        binding.webview.clearCache(true)
-        binding.webview.clearFormData()
-        binding.webview.clearMatches()
-        binding.webview.settings.apply {
+        webview?.loadUrl("https://juejin.cn/")
+    }
+
+    private fun webview() {
+        webview = WebView(this)
+        binding.webMain.addView(webview)
+        webview?.clearHistory()
+        webview?.clearCache(true)
+        webview?.clearFormData()
+        webview?.clearMatches()
+        webview?.settings?.apply {
             javaScriptEnabled = true
             allowFileAccess = true
             allowContentAccess = true
@@ -130,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             domStorageEnabled = true
             cacheMode = WebSettings.LOAD_NO_CACHE
         }
-        binding.webview.webChromeClient = object : WebChromeClient() {
+        webview?.webChromeClient = object : WebChromeClient() {
             override fun onCreateWindow(
                 view: WebView?,
                 isDialog: Boolean,
@@ -158,7 +159,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         }
-        binding.webview.webViewClient = object : WebViewClient() {
+        webview?.webViewClient = object : WebViewClient() {
 
             @SuppressLint("WebViewClientOnReceivedSslError")
             override fun onReceivedSslError(
@@ -195,27 +196,26 @@ class MainActivity : AppCompatActivity() {
                 return this.shouldOverrideUrlLoading(view, request?.url?.toString())
             }
 
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
-                } else {
-                    view?.loadUrl(MonitorHelper.injectVConsole())
-                }
-            }
-            override fun shouldInterceptRequest(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): WebResourceResponse? {
-                // 可以拦截请求，返回自定义的response，但不推荐
-                val response = MonitorHelper.shouldInterceptRequest(view, request)
-                if (response != null) {
-                    return response
-                }
-                return super.shouldInterceptRequest(view, request)
-            }
-
-//            有这个上面哪个不执行/。。。
+//            override fun onPageFinished(view: WebView?, url: String?) {
+//                super.onPageFinished(view, url)
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
+//                } else {
+//                    view?.loadUrl(MonitorHelper.injectVConsole())
+//                }
+//            }
+//            override fun shouldInterceptRequest(
+//                view: WebView?,
+//                request: WebResourceRequest?
+//            ): WebResourceResponse? {
+//                // 可以拦截请求，返回自定义的response，但不推荐
+//                val response = MonitorHelper.shouldInterceptRequest(view, request)
+//                if (response != null) {
+//                    return response
+//                }
+//                return super.shouldInterceptRequest(view, request)
+//            }
+//
 //            override fun shouldInterceptRequest(
 //                view: WebView?,
 //                url: String?
@@ -227,12 +227,12 @@ class MainActivity : AppCompatActivity() {
 //                return super.shouldInterceptRequest(view, url)
 //            }
         }
-
-        binding.webview.loadUrl("https://juejin.cn/")
     }
 
-    private fun webview() {
-
+    override fun onDestroy() {
+        super.onDestroy()
+        webview?.destroy()
+        binding.webMain.removeAllViews()
     }
 
     private fun sendRequest(url: String) {
@@ -261,6 +261,7 @@ class MainActivity : AppCompatActivity() {
             binding.tvAddress.text = monitorUrl
         }
     }
+
     fun getPhoneWifiIpAddress(): String? {
         try {
             val networkInterfaces = NetworkInterface.getNetworkInterfaces() ?: return null
@@ -280,6 +281,7 @@ class MainActivity : AppCompatActivity() {
         }
         return null
     }
+
     private fun spFileCommit() {
         getSharedPreferences("spFileName111", Context.MODE_PRIVATE).edit().also {
             it.putString("testString", "我是字符串")

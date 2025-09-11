@@ -64,5 +64,5 @@ dependencies {
 }
 
 //maven仓库
-//apply from: '../upload.gradle'
-apply from: '../artifactory.gradle'
+apply from: '../upload.gradle'
+//apply from: '../artifactory.gradle'
