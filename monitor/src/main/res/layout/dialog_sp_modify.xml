@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.lygttpod.shape.view.ShapeConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="300dp"
     android:padding="15dp"
-    app:shapeCornersTopLeftRadius="10dp"
-    app:shapeCornersTopRightRadius="10dp"
-    app:shapeSolidColor="@color/monitor_white">
+    android:background="@color/monitor_white">
 
     <TextView
         android:id="@+id/tv_title"
@@ -28,8 +26,8 @@
         android:id="@+id/tv_key"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/monitor_block"
@@ -39,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_title"
         tools:text="key" />
 
-    <com.lygttpod.shape.view.ShapeTextView
+    <TextView
         android:id="@+id/tv_type"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
@@ -50,8 +48,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_key"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_key"
-        app:shapeCornersRadius="5dp"
-        app:shapeSolidColor="@color/monitor_colorPrimary"
+        android:background="@color/monitor_colorPrimary"
         tools:text="type" />
 
     <EditText
@@ -70,7 +67,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_key" />
 
-    <com.lygttpod.shape.view.ShapeButton
+    <Button
         android:id="@+id/btn_modify"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -81,6 +78,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:shapeCornersRadius="25dp"
-        app:shapeSolidColor="@color/monitor_colorPrimary" />
-</com.lygttpod.shape.view.ShapeConstraintLayout>
+        android:background="@color/monitor_colorPrimary" />
+</androidx.constraintlayout.widget.ConstraintLayout>

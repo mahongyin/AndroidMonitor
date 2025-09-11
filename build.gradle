@@ -16,9 +16,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'
         //1、依赖抓包插件库
-//        classpath 'io.github.lygttpod:monitor-plugin:0.0.2'
-        classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.1-SNAPSHOT'
-        //classpath 'com.mhy.plugin:method-time-plugin:0.1.1'
+//        classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.1-SNAPSHOT'
+        classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.1'
 
     }
 }
