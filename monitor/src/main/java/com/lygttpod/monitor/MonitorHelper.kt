@@ -86,6 +86,7 @@ object MonitorHelper {
     /**
      * 配置参数 他是采用了 主项目assets目录下新建 monitor.properties 文件的方式
      */
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     fun init(context: Context) {
         MonitorHelper.context = context
         thread {
@@ -330,6 +331,7 @@ object MonitorHelper {
         ".rar", ".7z", ".tar", ".gz", ".exe", ".dll", ".so", ".apk", ".wasm"
     )
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
         //Log.d("shouldIntercept", "url: $url")
         //Patterns.WEB_URL.matcher(url).matches() || URLUtil.isValidUrl(url)

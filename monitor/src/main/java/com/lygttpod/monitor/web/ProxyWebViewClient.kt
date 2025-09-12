@@ -59,7 +59,6 @@ class ProxyWebViewClient(private val client: WebViewClient? = null) : WebViewCli
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
-        super.onPageFinished(view, url)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             view?.evaluateJavascript(MonitorHelper.injectVConsole(), null)
         } else {

@@ -2,11 +2,13 @@ package com.lygttpod.monitor.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.text.TextUtils
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import okhttp3.Authenticator
 import okhttp3.Cookie
@@ -114,10 +116,10 @@ object OkhttpUtils {
                     return cookies
                 }
 
+                @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                     cookies.forEach {
-                        CookieManager.getInstance()
-                            .setCookie(url.toString(), "${it.name}=${it.value}")
+                        CookieManager.getInstance().setCookie(url.toString(), "${it.name}=${it.value}")
                     }
                     CookieManager.getInstance().flush()
                 }
@@ -275,6 +277,7 @@ object OkhttpUtils {
 
     /******************************  WebResourceResponse   *************************************/
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun webResourceResponse(requestBuilder: Request.Builder): WebResourceResponse? {
         val okHttpClient = createOkhttpClient()
         val response = okHttpClient.newCall(requestBuilder.build()).execute()
@@ -312,6 +315,7 @@ object OkhttpUtils {
     }
 
     private var userAgent: String = "AndroidMonitor"
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     fun initUserAgent(context: Context?) {
         userAgent = WebSettings.getDefaultUserAgent(context)
         if (userAgent.isEmpty()) {
@@ -319,6 +323,7 @@ object OkhttpUtils {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun getResponseByOkHttp(url: String?): WebResourceResponse? {
         if (url.isNullOrBlank()) {
             return null
@@ -343,6 +348,7 @@ object OkhttpUtils {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun getResponseByOkHttp(webResourceRequest: WebResourceRequest?): WebResourceResponse? {
         if (webResourceRequest == null) {
             return null
