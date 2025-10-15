@@ -45,9 +45,8 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
 
-
-    // Android DSL  Android编译的大部分gradle源码 7.4.2=Java11
-    compileOnly 'com.android.tools.build:gradle:8.3.0' //考虑兼容Java11  AGP8 要Java17
+    //AGP
+    compileOnly 'com.android.tools.build:gradle:8.3.0' //AGP8 要Java17
 //    compileOnly 'com.android.tools.build:gradle-api:8.3.0'
     //ASM
     implementation 'org.ow2.asm:asm:9.6'
@@ -64,14 +63,26 @@ dependencies {
 //    }
 }
 
-group = 'io.github.mahongyin.AndroidMonitor'
+//  获取项目名
+def projectName = rootProject.name  //分享git是取的项目名
+def projectDirName = rootProject.projectDir.name//def projectName =rootProject.rootDir.name//项目文件夹名
+//  获取当前模块名
+def moduleName = project.name
+def moduleDirName = projectDir.name
+
+def gitRepo = "github.com/mahongyin"
+def groupName = "io.github.mahongyin.$projectName" //自行分辨 用项目名还是目录名
+def versionName = VERSION_NAME
+
+group = groupName //'io.github.mahongyin.AndroidMonitor'
 version = VERSION_NAME
+
 gradlePlugin {
-    website.set("https://github.com/mahongyin/AndroidMonitor")
-    vcsUrl.set("https://github.com/mahongyin/AndroidMonitor")
+    website.set("https://${gitRepo}/AndroidMonitor")
+    vcsUrl.set("https://${gitRepo}/AndroidMonitor")
     plugins {
         create("monitor") { // "monitor"是一个内部标识符，可以自定义
-            id = "io.github.mahongyin.AndroidMonitor.monitor-plugin"// 此处定义的才是真正的插件ID
+            id = "${groupName}.${moduleName}"// 此处定义的才是真正的插件ID
             implementationClass = "com.lygttpod.monitor.plugin.MonitorPlugin"
             displayName = "MonitorPlugin"
             description = "Gradle plugin to Monitor Net!"
