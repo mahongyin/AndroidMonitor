@@ -30,8 +30,9 @@ plugins {
     //id 'java'
     id 'groovy'
     id 'kotlin'
+    // gradle门户
+    id 'com.gradle.plugin-publish' version '2.0.0'
 }
-
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_17
 //    targetCompatibility = JavaVersion.VERSION_17
@@ -46,8 +47,8 @@ dependencies {
 
 
     // Android DSL  Android编译的大部分gradle源码 7.4.2=Java11
-    implementation 'com.android.tools.build:gradle:8.3.0' //考虑兼容Java11  AGP8 要Java17
-    implementation 'com.android.tools.build:gradle-api:8.3.0'
+    compileOnly 'com.android.tools.build:gradle:8.3.0' //考虑兼容Java11  AGP8 要Java17
+//    compileOnly 'com.android.tools.build:gradle-api:8.3.0'
     //ASM
     implementation 'org.ow2.asm:asm:9.6'
     implementation 'org.ow2.asm:asm-util:9.6'
@@ -63,6 +64,23 @@ dependencies {
 //    }
 }
 
+group = 'io.github.mahongyin.AndroidMonitor'
+version = VERSION_NAME
+gradlePlugin {
+    website.set("https://github.com/mahongyin/AndroidMonitor")
+    vcsUrl.set("https://github.com/mahongyin/AndroidMonitor")
+    plugins {
+        create("monitor") { // "monitor"是一个内部标识符，可以自定义
+            id = "io.github.mahongyin.AndroidMonitor.monitor-plugin"// 此处定义的才是真正的插件ID
+            implementationClass = "com.lygttpod.monitor.plugin.MonitorPlugin"
+            displayName = "MonitorPlugin"
+            description = "Gradle plugin to Monitor Net!"
+            tags.set(["android", "monitor", "okhttp", "mahongyin"])//listOf()
+        }
+        //... 还可以再加
+        //register("xxxx") {}
+    }
+}
 //maven仓库
 apply from: '../upload.gradle'
 //apply from: '../artifactory.gradle'

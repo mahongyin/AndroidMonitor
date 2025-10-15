@@ -44,7 +44,7 @@ mavenPublishing {
     coordinates(groupName, moduleName, versionName)
 
     pom {
-        // 模块名
+        // 模块名 //项目名也行
         name = moduleName
         description = "A description of what ${projectName} does."
         inceptionYear = "2025"
