@@ -3,8 +3,9 @@
 ### [**Demo下载体验**](https://www.pgyer.com/AndroidMonitor)
 
 ### [**文章介绍---->Android抓包从未如此简单**](https://juejin.cn/post/7119083753376317448)
- APG8 版本 Java17 【1.0.1】monitor-plugin 支持okhttp抓包、web注入vConsole   【1.0.1】monitor  含shapeView
- APG8 版本 Java17 【1.0.0】monitor-plugin 支持okhttp抓包                   【1.0.0】monitor  不含shapeView
+ APG8 版本 Java17 【1.0.2】monitor-plugin 支持okhttp抓包、SP\SqLite、web/x5注入vConsole   【1.0.2】monitor  不含shapeView
+ APG8 版本 Java17 【1.0.1】monitor-plugin 支持okhttp抓包、SP、web注入vConsole   【1.0.1】monitor  含shapeView
+ APG8 版本 Java17 【1.0.0】monitor-plugin 支持okhttp抓包、SP                   【1.0.0】monitor  不含shapeView
  APG4/7 版本Java8 【0.1.0】monitor-plugin
 https://www.jianshu.com/p/b6f6d63061e4
 

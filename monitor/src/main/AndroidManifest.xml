@@ -46,7 +46,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+        <activity
+            android:name=".ui.sqlite.TbListActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
 
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/x-sqlite2" />
+                <data android:mimeType="application/x-sqlite3" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.sqlite.TableActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
         <provider
             android:name=".provider.MonitorProvider"
             android:authorities="${applicationId}.monitor_provider"

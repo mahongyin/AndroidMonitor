@@ -102,8 +102,40 @@ class MainActivity : AppCompatActivity() {
         binding.btnSendOkhttp.setOnClickListener {
             sendRequest("https://www.wanandroid.com/banner/json")
         }
-        webview()
-        webview?.loadUrl("https://juejin.cn/")
+//        webview()
+//        webview?.loadUrl("https://juejin.cn/")
+
+        x5WebView()
+
+    }
+
+    private fun x5WebView() {
+        val x5WebView = com.tencent.smtt.sdk.WebView(this)
+        binding.webMain.addView(x5WebView)
+        x5WebView.settings.javaScriptEnabled = true
+        x5WebView.webViewClient = object : com.tencent.smtt.sdk.WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: com.tencent.smtt.sdk.WebView,
+                request: com.tencent.smtt.export.external.interfaces.WebResourceRequest
+            ): Boolean {
+                val url = request?.url?.toString() ?: ""
+                Log.d("shouldLoading", "x5WebView: $url")
+                if (url.startsWith("http", true)) {
+                    view?.loadUrl(url)
+                } else {
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                    if (packageManager.resolveActivity(
+                            intent,
+                            PackageManager.MATCH_DEFAULT_ONLY
+                        ) != null
+                    ) {
+                        startActivity(intent)
+                    }
+                }
+                return true
+            }
+        }
+        x5WebView.loadUrl("https://juejin.cn/")
     }
 
     private fun webview() {

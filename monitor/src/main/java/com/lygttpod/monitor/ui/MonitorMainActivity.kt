@@ -17,6 +17,7 @@ import com.lygttpod.monitor.R
 import com.lygttpod.monitor.databinding.ActivityMonitorMainBinding
 import com.lygttpod.monitor.ui.request.MonitorMainFragment
 import com.lygttpod.monitor.ui.sp.SPFileListFragment
+import com.lygttpod.monitor.ui.sqlite.SqliteFileListFragment
 import com.lygttpod.monitor.utils.getPhoneWifiIpAddress
 import kotlin.concurrent.thread
 
@@ -59,7 +60,7 @@ class MonitorMainActivity : AppCompatActivity(), NavigationBarView.OnItemSelecte
     }
 
     private fun initPage() {
-        val fragments = listOf(MonitorMainFragment(), SPFileListFragment())
+        val fragments = listOf(MonitorMainFragment(), SPFileListFragment(), SqliteFileListFragment())
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = fragments.size
@@ -75,6 +76,7 @@ class MonitorMainActivity : AppCompatActivity(), NavigationBarView.OnItemSelecte
                 when (position) {
                     0 -> binding.bottomNavigationView.selectedItemId = R.id.navigation_monitor
                     1 -> binding.bottomNavigationView.selectedItemId = R.id.navigation_sharedPrefs
+                    2 -> binding.bottomNavigationView.selectedItemId = R.id.navigation_sqlite
                 }
             }
         })
@@ -88,6 +90,10 @@ class MonitorMainActivity : AppCompatActivity(), NavigationBarView.OnItemSelecte
             }
             R.id.navigation_sharedPrefs -> {
                 binding.viewPager.currentItem = 1
+                return true
+            }
+            R.id.navigation_sqlite -> {
+                binding.viewPager.currentItem = 2
                 return true
             }
         }

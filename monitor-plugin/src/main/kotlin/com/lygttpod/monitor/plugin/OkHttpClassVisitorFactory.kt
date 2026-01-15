@@ -24,8 +24,6 @@ abstract class OkHttpClassVisitorFactory : AsmClassVisitorFactory<Instrumentatio
                         override fun visitInsn(opcode: Int) {
                             // 在构造方法返回前插入代码
                             if (opcode == Opcodes.RETURN) {
-                                // 加载 Builder 实例（this）
-                                mv.visitVarInsn(Opcodes.ALOAD, 0)
                                 // 调用静态方法MonitorHelper.getHookInterceptors() 获取自定义拦截器列表
                                 mv.visitFieldInsn(
                                     Opcodes.GETSTATIC,
@@ -41,7 +39,8 @@ abstract class OkHttpClassVisitorFactory : AsmClassVisitorFactory<Instrumentatio
                                     false
                                 )
 
-                                mv.visitVarInsn(Opcodes.ASTORE, 10) // 保存到局部变量10
+                                // 复制栈顶的 List（需要用于 addAll 调用）
+                                mv.visitInsn(Opcodes.DUP)
 
                                 // 获取 Builder 实例的 interceptors 字段
                                 mv.visitVarInsn(Opcodes.ALOAD, 0) // this（Builder实例）
@@ -51,7 +50,10 @@ abstract class OkHttpClassVisitorFactory : AsmClassVisitorFactory<Instrumentatio
                                     "interceptors",
                                     "Ljava/util/List;"
                                 )
-                                mv.visitVarInsn(Opcodes.ALOAD, 10) // 取出局部变量10
+
+                                // 交换栈顶两个元素，使 hookInterceptors 在上面，interceptors 在下面
+                                mv.visitInsn(Opcodes.SWAP)
+
                                 // 调用 interceptors.addAll(hookInterceptors)
                                 mv.visitMethodInsn(
                                     Opcodes.INVOKEINTERFACE,

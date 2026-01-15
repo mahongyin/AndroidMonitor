@@ -17,6 +17,7 @@ import androidx.room.Room
 import com.android.local.service.core.ALSHelper
 import com.android.local.service.core.data.ServiceConfig
 import com.google.gson.Gson
+import com.lygttpod.monitor.data.DbData
 import com.lygttpod.monitor.data.MonitorData
 import com.lygttpod.monitor.data.SpValueInfo
 import com.lygttpod.monitor.enum.SPValueType
@@ -34,6 +35,7 @@ import com.lygttpod.monitor.utils.SPUtils
 import com.lygttpod.monitor.utils.defaultContentTypes
 import com.lygttpod.monitor.utils.lastUpdateDataId
 import com.lygttpod.monitor.web.ProxyWebViewClient
+import com.lygttpod.monitor.web.ProxyX5Client
 import java.io.File
 import java.net.URL
 import java.net.URLStreamHandler
@@ -225,7 +227,35 @@ object MonitorHelper {
     fun updateSpValue(fileName: String, key: String, value: Any?) {
         SPUtils.saveValue(context ?: return, fileName, key, value)
     }
-
+    fun getDatabaseDirectory(context: Context): File {
+        return File(context.filesDir.parentFile, "databases")
+    }
+    // 或者获取特定数据库文件
+    fun getDatabaseFilePath(context: Context, dbName: String): String {
+        return context.getDatabasePath(dbName).absolutePath
+    }
+    fun getSqliteFilesData(): List<DbData> {
+        val ctx = context ?: return arrayListOf()
+        val list = arrayListOf<DbData>()
+        ctx.databaseList().forEach {name->
+            list.add(DbData(path = getDatabaseFilePath(ctx, name), name =  name))
+        }
+        if (list.isNotEmpty()){
+            return list
+        }
+        val targetFile = getDatabaseDirectory(ctx)
+        if (!targetFile.exists()) return arrayListOf()
+        if (targetFile.isDirectory) {
+            targetFile.listFiles()?.forEach { spFile ->
+                val fileName = spFile.name
+                Log.d(TAG, "getSqliteFiles: $fileName")
+                if (!fileName.isNullOrBlank()) {
+                    list.add(DbData(path = spFile.absolutePath, name =  fileName))
+                }
+            }
+        }
+        return list
+    }
     /**
      * 用进程pid当端口号。进程id 32位整数（4 字节） 通常范围通常从 1-32768（系统相关）由操作系统分配和管理
      * 端口范围 2字节 系统端口(0-1023)、注册端口(1024-49151)和动态端口(49152-65535)
@@ -262,7 +292,17 @@ object MonitorHelper {
         webView?.settings?.javaScriptEnabled = true
         return ProxyWebViewClient(client)
     }
-
+    @SuppressLint("SetJavaScriptEnabled")
+    fun handleX5WebViewClient(webView: com.tencent.smtt.sdk.WebView?, client: com.tencent.smtt.sdk.WebViewClient?): com.tencent.smtt.sdk.WebViewClient {
+        webView?.settings?.javaScriptEnabled = true
+        return ProxyX5Client(client)
+    }
+    fun getDefaultWebViewClient(): WebViewClient {
+        return ProxyWebViewClient()
+    }
+    fun getDefaultX5WebViewClient(): com.tencent.smtt.sdk.WebViewClient {
+        return ProxyX5Client()
+    }
     /**
      * 做一些过滤
      */

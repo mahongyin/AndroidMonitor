@@ -95,3 +95,10 @@ gradlePlugin {
 //maven仓库
 apply from: '../upload.gradle'
 //apply from: '../artifactory.gradle'
+
+//如果VERSION_NAME 是-SNAPSHOT。删除localmaven目录下的snapshot
+task cleanLocalMaven(type: Delete) {
+    //if (VERSION_NAME.endsWith("-SNAPSHOT")) {
+        delete rootProject.file("localmaven")
+    //}
+}

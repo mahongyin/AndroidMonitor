@@ -10,14 +10,14 @@ apply plugin: 'maven-publish'
 //        }
 //    }
 //}
-//发布插件
+//发布插件 ./gradle publishMavenPublicationToMavenRepository
 publishing {
     publications { PublicationContainer publication ->
         maven(MavenPublication) {
             version VERSION_NAME
             artifactId 'monitor-plugin'
             groupId 'io.github.mahongyin.'+rootProject.name
-            from components.java
+            from components.java //jar
 //            from components.release
         }
     }

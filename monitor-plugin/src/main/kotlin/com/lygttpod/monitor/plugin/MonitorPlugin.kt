@@ -34,9 +34,14 @@ class MonitorPlugin : Plugin<Project> {
                         OkHttpClassVisitorFactory::class.java,
                         InstrumentationScope.ALL
                     ) {}
-
+                    // WebViewClient 插桩
                     transformClassesWith(
                         WebClientClassVisitorFactory::class.java,
+                        InstrumentationScope.PROJECT
+                    ) {}
+                    // x5WebView
+                    transformClassesWith(
+                        X5WebClientClassVisitorFactory::class.java,
                         InstrumentationScope.PROJECT
                     ) {}
 
