@@ -102,10 +102,11 @@ class MainActivity : AppCompatActivity() {
         binding.btnSendOkhttp.setOnClickListener {
             sendRequest("https://www.wanandroid.com/banner/json")
         }
-//        webview()
-//        webview?.loadUrl("https://juejin.cn/")
 
-        x5WebView()
+        webview()
+        webview?.loadUrl("https://juejin.cn/")
+
+        //x5WebView()
 
     }
 

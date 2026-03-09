@@ -20,6 +20,9 @@ abstract class MonitorService {
     @Page("sp_index")
     fun showSpPage() = "sp_index.html"
 
+    @Page("sqlite_index")
+    fun showSqlitePage() = "sqlite_index.html"
+
     @Page("mqtt_index")
     fun showMqttPage() = "mqtt_index.html"
 
@@ -64,6 +67,15 @@ abstract class MonitorService {
         }
         MonitorHelper.updateSpValue(fileName, key, realValue)
     }
+
+    @Request("sqliteFiles")
+    fun getSqliteFilesData() = MonitorHelper.getSqliteFilesData()
+
+    @Request("sqliteTables")
+    fun getSqliteTableNames(dbPath: String, password: String) = MonitorHelper.getSqliteTableNames(dbPath, password)
+
+    @Request("sqliteTableData")
+    fun getSqliteTableData(dbPath: String, password: String, tableName: String, limit: Int = 100) = MonitorHelper.getSqliteTableData(dbPath,password, tableName, limit)
 
     @Request("setWeakNetConfig")
     fun configWeak(weakType: String) {

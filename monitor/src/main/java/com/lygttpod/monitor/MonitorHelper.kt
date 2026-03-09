@@ -3,6 +3,7 @@ package com.lygttpod.monitor
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log
@@ -126,11 +127,23 @@ object MonitorHelper {
     }
 
     private fun initMonitorDataDao(context: Context, dbName: String) {
+//        System.loadLibrary("sqlcipher");
         if (monitorDb == null) {
             monitorDb = Room
                 .databaseBuilder(context.applicationContext, MonitorDatabase::class.java, dbName)
                 .fallbackToDestructiveMigration()
                 .build()
+
+            // 使用sqlcipher 加密
+//            val password = "123456"
+//            val databaseFile = context.getDatabasePath(dbName)
+//            val factory = SupportOpenHelperFactory(password.toByteArray())
+//            monitorDb = Room
+//                .databaseBuilder(context.applicationContext,
+//                    MonitorDatabase::class.java,
+//                    databaseFile.absolutePath)
+//                .openHelperFactory(factory)
+//                .build()
         }
     }
 
@@ -255,6 +268,89 @@ object MonitorHelper {
             }
         }
         return list
+    }
+
+    fun getSqliteTableNames(dbPath: String, password: String): List<String> {
+        val tableNames = mutableListOf<String>()
+        try {
+            val database = SQLiteDatabase.openDatabase(
+                dbPath, null, SQLiteDatabase.OPEN_READONLY
+            )
+            val cursor = database.rawQuery(
+                "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name", null
+            )
+            while (cursor.moveToNext()) {
+                val tableName = cursor.getString(0)
+                if (tableName != "android_metadata" && !tableName.startsWith("sqlite_")) {
+                    tableNames.add(tableName)
+                }
+            }
+            cursor.close()
+            database.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "getSqliteTableNames error: ${e.message}")
+        }
+        return tableNames
+    }
+
+    fun getSqliteTableData(dbPath: String, password: String, tableName: String, limit: Int = 100): Map<String, Any> {
+        val result = mutableMapOf<String, Any>()
+        try {
+            val database = SQLiteDatabase.openDatabase(
+                dbPath, null, SQLiteDatabase.OPEN_READONLY
+            )
+
+            // 获取表结构
+            val columns = mutableListOf<String>()
+            val cursor = database.rawQuery("PRAGMA table_info($tableName)", null)
+            val columnNames = mutableListOf<String>()
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(1)
+                columnNames.add(name)
+            }
+            cursor.close()
+
+            // 获取表数据
+            val dataCursor = database.query(
+                tableName,
+                columnNames.toTypedArray(),
+                null, null, null, null, null,
+                limit.toString()
+            )
+
+            val rows = mutableListOf<Map<String, Any>>()
+            val rowCount = dataCursor.count
+
+            while (dataCursor.moveToNext()) {
+                val row = mutableMapOf<String, Any>()
+                for (i in columnNames.indices) {
+                    val columnName = columnNames[i]
+                    val columnIndex = dataCursor.getColumnIndex(columnName)
+                    if (columnIndex >= 0) {
+                        val value = when (dataCursor.getType(columnIndex)) {
+                            android.database.Cursor.FIELD_TYPE_INTEGER -> dataCursor.getLong(columnIndex)
+                            android.database.Cursor.FIELD_TYPE_FLOAT -> dataCursor.getDouble(columnIndex)
+                            android.database.Cursor.FIELD_TYPE_STRING -> dataCursor.getString(columnIndex) ?: ""
+                            android.database.Cursor.FIELD_TYPE_BLOB -> "<BLOB>"
+                            else -> null
+                        }
+                        row[columnName] = value ?: ""
+                    }
+                }
+                rows.add(row)
+            }
+            dataCursor.close()
+            database.close()
+
+            result["columns"] = columnNames
+            result["rows"] = rows
+            result["totalRows"] = rowCount
+
+        } catch (e: Exception) {
+            Log.e(TAG, "getSqliteTableData error: ${e.message}")
+            result["error"] = e.message ?: "Unknown error"
+        }
+        return result
     }
     /**
      * 用进程pid当端口号。进程id 32位整数（4 字节） 通常范围通常从 1-32768（系统相关）由操作系统分配和管理

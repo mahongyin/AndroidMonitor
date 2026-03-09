@@ -14,7 +14,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0' //对应kotlin 1.9.0
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'//35对应kt1.2.0 gradle 8.
         //1、依赖抓包插件库
 //        classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.2-SNAPSHOT'
         classpath 'io.github.mahongyin.AndroidMonitor:monitor-plugin:1.0.2'

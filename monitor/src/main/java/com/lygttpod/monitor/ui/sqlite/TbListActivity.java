@@ -316,12 +316,14 @@ public class TbListActivity extends Activity implements PopupMenu.OnMenuItemClic
 
     private List<String> getTableNames() {
         List<String> list = new ArrayList<>();
-        Cursor cursor = mDatabase.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name", null);
-        while (cursor.moveToNext()) {
-            list.add(cursor.getString(0));
+        if (mDatabase != null) {
+            Cursor cursor = mDatabase.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name", null);
+            while (cursor.moveToNext()) {
+                list.add(cursor.getString(0));
+            }
+            cursor.close();
+            Collections.sort(list, Collator.getInstance(Locale.getDefault()));
         }
-        cursor.close();
-        Collections.sort(list, Collator.getInstance(Locale.getDefault()));
         return list;
     }
 

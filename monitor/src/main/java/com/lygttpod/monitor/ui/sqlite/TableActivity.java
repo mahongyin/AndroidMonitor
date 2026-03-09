@@ -19,7 +19,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.bin.david.form.core.SmartTable;
-//import com.bin.david.form.data.Cell;
 import com.bin.david.form.data.CellInfo;
 import com.bin.david.form.data.column.Column;
 import com.bin.david.form.data.format.bg.ICellBackgroundFormat;

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>抓包助手-SQLite数据库</title>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            querySqliteData();
+        });
+
+        function querySqliteData() {
+            $.get("/sqliteFiles", function (result, statusText, jqXHR) {
+                if (result == undefined || result.length <= 0 || result == "[]") {
+                    emptyView();
+                    return;
+                }
+                getRootView().empty();
+                const contentType = jqXHR.getResponseHeader('Content-Type');
+                console.log("Content-Type：", contentType);
+                if (contentType.indexOf("application/json") >= 0) {
+                    var jsonObj = result;
+                } else {
+                    var jsonObj = JSON.parse(result);
+                }
+                var code = jsonObj.code;
+                var data = jsonObj.data;
+                if (code == 200 && data != null && data.length > 0) {
+                    createUI(data);
+                } else {
+                    emptyView();
+                }
+            }).error(function () {
+                errorView()
+            });
+        }
+
+        function createUI(data) {
+            var content = "";
+            content += '<div class="container-fluid">';
+            content += '<div class="row">';
+            content += '<div class="col-md-12">';
+            content += '<h3>SQLite 数据库文件列表</h3>';
+            content += '<table class="table table-hover table-bordered">';
+            content += '<thead><tr><th>序号</th><th>数据库名称</th><th>文件路径</th><th>操作</th></tr></thead>';
+            content += '<tbody>';
+
+            for (var i = 0; i < data.length; i++) {
+                var dbData = data[i];
+                content += '<tr>';
+                content += '<td>' + (i + 1) + '</td>';
+                content += '<td>' + dbData.name + '</td>';
+                content += '<td>' + dbData.path + '</td>';
+                content += '<td>';
+                content += '<button class="btn btn-sm btn-info" onclick="openDatabase(\'' + dbData.path + '\', \'' + dbData.name + '\')">查看数据</button>';
+                content += '</td>';
+                content += '</tr>';
+            }
+
+            content += '</tbody></table>';
+            content += '</div></div></div>';
+            getRootView().append(content);
+        }
+
+        function openDatabase(dbPath, dbName) {
+            var password = prompt("请输入数据库密码(如果数据库没有加密,请直接点击确定):", "");
+            if (password === null) {
+                return; // 用户点击取消
+            }
+            $.get("/sqliteTables?dbPath=" + encodeURIComponent(dbPath) + "&password=" + encodeURIComponent(password), function (result, statusText, jqXHR) {
+                if (result == undefined || result == "[]") {
+                    alert("获取数据库表列表失败或数据库为空");
+                    return;
+                }
+                const contentType = jqXHR.getResponseHeader('Content-Type');
+                if (contentType.indexOf("application/json") >= 0) {
+                    var jsonObj = result;
+                } else {
+                    var jsonObj = JSON.parse(result);
+                }
+                var code = jsonObj.code;
+                var tables = jsonObj.data;
+                if (code == 200 && tables != null && tables.length > 0) {
+                    showTableListDialog(dbPath, dbName, tables, password);
+                } else {
+                    alert("数据库中没有表");
+                }
+            }).error(function () {
+                alert("获取数据库表列表失败,请检查密码是否正确");
+            });
+        }
+
+        function showTableListDialog(dbPath, dbName, tables, password) {
+            var content = '<div class="list-group">';
+            for (var i = 0; i < tables.length; i++) {
+                content += '<a href="#" class="list-group-item" onclick="loadTableData(\'' + dbPath + '\', \'' + dbName + '\', \'' + tables[i] + '\', \'' + password + '\'); $(\'#tableModal\').modal(\'hide\');">';
+                content += '<h4 class="list-group-item-heading">📋 ' + tables[i] + '</h4>';
+                content += '<p class="list-group-item-text">点击查看表数据</p>';
+                content += '</a>';
+            }
+            content += '</div>';
+
+            var modalHtml = '<div class="modal fade" id="tableModal" tabindex="-1" role="dialog" aria-hidden="true">' +
+                '<div class="modal-dialog" role="document">' +
+                '<div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">数据库: ' + dbName + '</h5>' +
+                '</div>' +
+                '<div class="modal-body" style="max-height: 400px; overflow-y: auto;">' +
+                content +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+
+            if ($("#tableModal").length > 0) {
+                $("#tableModal").remove();
+            }
+            $("body").append(modalHtml);
+            $("#tableModal").modal("show");
+        }
+
+        function loadTableData(dbPath, dbName, tableName, password) {
+            $.get("/sqliteTableData?dbPath=" + encodeURIComponent(dbPath) + "&password=" + encodeURIComponent(password) + "&tableName=" + encodeURIComponent(tableName) + "&limit=100",
+                function (result, statusText, jqXHR) {
+                    if (result == undefined || result == "[]") {
+                        alert("获取表数据失败");
+                        return;
+                    }
+                    const contentType = jqXHR.getResponseHeader('Content-Type');
+                    if (contentType.indexOf("application/json") >= 0) {
+                        var jsonObj = result;
+                    } else {
+                        var jsonObj = JSON.parse(result);
+                    }
+                    var code = jsonObj.code;
+                    var data = jsonObj.data;
+                    if (code == 200 && data != null) {
+                        showTableDataDialog(dbName, tableName, data);
+                    } else {
+                        alert("获取表数据失败");
+                    }
+                }
+            ).error(function () {
+                alert("获取表数据失败,请检查密码是否正确");
+            });
+        }
+
+        function showTableDataDialog(dbName, tableName, data) {
+            var columns = data.columns || [];
+            var rows = data.rows || [];
+            var totalRows = data.totalRows || 0;
+
+            var tableContent = '<div class="alert alert-info">表名: ' + tableName + ' | 总记录数: ' + totalRows + ' | 显示: ' + rows.length + ' 条</div>';
+            tableContent += '<div style="overflow-x: auto; max-height: 500px;">';
+            tableContent += '<table class="table table-bordered table-striped table-condensed">';
+
+            // 表头
+            tableContent += '<thead><tr>';
+            tableContent += '<th>#</th>'; // 序号列
+            for (var i = 0; i < columns.length; i++) {
+                tableContent += '<th>' + columns[i] + '</th>';
+            }
+            tableContent += '</tr></thead>';
+
+            // 表数据
+            tableContent += '<tbody>';
+            for (var j = 0; j < rows.length; j++) {
+                var row = rows[j];
+                tableContent += '<tr>';
+                tableContent += '<td>' + (j + 1) + '</td>';
+                for (var k = 0; k < columns.length; k++) {
+                    var colName = columns[k];
+                    var cellValue = row[colName] !== undefined ? row[colName] : '';
+                    // 限制单元格显示长度
+                    if (cellValue != null && String(cellValue).length > 100) {
+                        cellValue = String(cellValue).substring(0, 100) + '...';
+                    }
+                    tableContent += '<td>' + cellValue + '</td>';
+                }
+                tableContent += '</tr>';
+            }
+            tableContent += '</tbody>';
+            tableContent += '</table></div>';
+
+            var modalHtml = '<div class="modal fade" id="tableDataModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">' +
+                '<div class="modal-dialog modal-lg" role="document">' +
+                '<div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">' + dbName + '.' + tableName + '</h5>' +
+                '</div>' +
+                '<div class="modal-body" style="padding: 15px;">' +
+                tableContent +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<button type="button" class="btn btn-secondary" onclick="closeTableDataModal()">关闭</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+
+            if ($("#tableDataModal").length > 0) {
+                $("#tableDataModal").remove();
+            }
+            $("body").append(modalHtml);
+            $("#tableDataModal").modal("show");
+        }
+
+        function closeTableDataModal() {
+            $("#tableDataModal").modal("hide");
+            setTimeout(function() {
+                $("#tableDataModal").remove();
+            }, 300);
+        }
+
+        function isEmpty(str) {
+            return str == null || str == undefined || str.length <= 0;
+        }
+
+        function isNotEmpty(str) {
+            return str != null && str != undefined && str.length > 0;
+        }
+
+        /**
+         * 空布局
+         */
+        function emptyView() {
+            getRootView().empty()
+            getRootView().append('<h1 style="text-align: center">' + "暂无SQLite数据库文件" + "</h1><hr/>");
+        }
+
+        /**
+         * 错误布局
+         */
+        function errorView() {
+            getRootView().empty()
+            getRootView().append('<h1 style="text-align: center">' + "服务器异常，请重启APP" + "</h1><hr/>");
+        }
+
+        function getRootView() {
+            return $("#root_container");
+        }
+
+
+    </script>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        .root {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .navbar {
+            width: 100%;
+        }
+
+        .root_container {
+            position: absolute;
+            padding-top: 60px;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="root">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">抓包助手</a>
+                </div>
+                <div>
+                    <ul class="nav navbar-nav">
+                        <li class="nav-item"><a href="index" target="_blank">网络数据</a></li>
+                        <li class="nav-item"><a href="sp_index" target="_blank">SP文件</a></li>
+                        <li class="nav-item active"><a href="#" target="_blank">SQLite数据库</a></li>
+                        <li class="nav-item disabled"><a href="#">more coming</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="root_container" id="root_container">
+
+        </div>
+    </div>
+
+</body>
+
+</html>
